@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import { ArrowRight, Menu, X } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
@@ -41,7 +42,7 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center md:flex">
-          <Button render={<a href="#features" />} nativeButton={false}>
+          <Button render={<Link to="/workspace" />} nativeButton={false}>
             Get Started
             <ArrowRight data-icon="inline-end" />
           </Button>
@@ -80,7 +81,7 @@ export function Navbar() {
                 </a>
               ))}
               <Button
-                render={<a href="#features" onClick={() => setOpen(false)} />}
+                render={<Link to="/workspace" onClick={() => setOpen(false)} />}
                 nativeButton={false}
                 className="mt-2 justify-center"
               >

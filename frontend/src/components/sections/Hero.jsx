@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import { ArrowRight, PlayCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HeroPreview } from "@/components/sections/HeroPreview"
@@ -38,14 +39,14 @@ export function Hero() {
             transition={defaultTransition}
             className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
           >
-            <Button size="lg" render={<a href="#features" />} nativeButton={false} className="h-11 gap-2 px-6">
+            <Button size="lg" render={<Link to="/workspace" />} nativeButton={false} className="h-11 gap-2 px-6">
               Get Started
               <ArrowRight data-icon="inline-end" className="size-4" />
             </Button>
             <Button
               size="lg"
               variant="outline"
-              render={<a href="#how-it-works" />}
+              render={<Link to="/workspace" />}
               nativeButton={false}
               className="h-11 gap-2 px-6"
             >

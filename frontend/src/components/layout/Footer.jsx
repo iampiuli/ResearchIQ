@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
@@ -66,7 +67,7 @@ export function Footer() {
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 Get started
               </p>
-              <Button render={<a href="#top" />} nativeButton={false} className="gap-2">
+              <Button render={<Link to="/workspace" />} nativeButton={false} className="gap-2">
                 Try ResearchIQ
                 <ArrowRight data-icon="inline-end" className="size-4" />
               </Button>
