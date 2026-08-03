@@ -55,11 +55,18 @@ class ChromaService:
         filename: str,
         page_count: int,
         uploaded_at: str,
+        original_filename: str | None = None,
     ) -> int:
         """
         Insert every chunk and its already-generated embedding into the
         collection. Does not regenerate embeddings — `embeddings` must
         already correspond 1:1 with `chunks`.
+
+        `original_filename` (the human-readable name the user uploaded, as
+        opposed to `filename`, the stored UUID-based name) is stored so
+        retrieval can hand Gemini a readable label instead of a UUID —
+        without it, synthesis-style answers that name their sources verbatim
+        (e.g. "Paper 2 (...)") end up echoing the opaque stored filename.
         """
         if not chunks:
             return 0
@@ -70,6 +77,7 @@ class ChromaService:
                 "paper_id": paper_id,
                 "chunk_id": chunk_id,
                 "filename": filename,
+                "original_filename": original_filename or filename,
                 "page_count": page_count,
                 "uploaded_at": uploaded_at,
             }

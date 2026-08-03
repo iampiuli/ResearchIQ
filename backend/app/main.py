@@ -6,8 +6,11 @@ handlers, and API routers. Business logic lives in services/ and is not
 implemented yet — this file only assembles the architecture.
 """
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import upload, chat, papers, search
 from app.utils.config import settings
@@ -46,6 +49,12 @@ app.include_router(upload.router)
 app.include_router(chat.router)
 app.include_router(papers.router)
 app.include_router(search.router)
+
+# --- Static files (read-only) ---
+# Serves already-uploaded PDFs by stored filename so the frontend can render
+# them; does not add or change any route's request/response behavior.
+Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+app.mount("/files", StaticFiles(directory=settings.UPLOAD_DIR), name="files")
 
 
 @app.get("/health", tags=["Health"])

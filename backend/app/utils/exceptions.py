@@ -23,19 +23,35 @@ class ResearchIQException(Exception):
 
 
 class PDFProcessingError(ResearchIQException):
-    """Raised when a PDF fails to parse or extract text (future: pdf_service)."""
+    """Raised when a PDF fails to parse or extract text."""
 
 
 class EmbeddingError(ResearchIQException):
-    """Raised when embedding generation fails (future: embedding_service)."""
+    """Raised when embedding generation fails."""
 
 
 class RetrievalError(ResearchIQException):
-    """Raised when vector store retrieval fails (future: retrieval_service)."""
+    """Raised when vector store retrieval fails."""
 
 
 class LLMError(ResearchIQException):
-    """Raised when the LLM provider call fails (future: llm_service)."""
+    """Raised when the LLM provider call fails for a genuine server-side reason
+    (outage, timeout, unexpected API error) — anything that isn't a known,
+    more specific case like QuotaExceededError below."""
+
+    def __init__(self, message: str):
+        super().__init__(message, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class QuotaExceededError(LLMError):
+    """Raised specifically when the Gemini API rejects a call with 429
+    ResourceExhausted (daily free-tier request quota used up) — distinct from
+    LLMError so the frontend can show an accurate, actionable message instead
+    of a generic "service unavailable"."""
+
+    def __init__(self, message: str):
+        # Bypass LLMError.__init__ (which hardcodes 503) — this is 429.
+        ResearchIQException.__init__(self, message, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
 class InvalidFileError(ResearchIQException):

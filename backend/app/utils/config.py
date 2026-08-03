@@ -31,16 +31,25 @@ class Settings:
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "app/uploads")
     MAX_UPLOAD_SIZE_MB: int = int(os.getenv("MAX_UPLOAD_SIZE_MB", "50"))
 
-    # --- Google Gemini (not wired up yet) ---
+    # --- Google Gemini ---
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 
     # --- ChromaDB ---
     CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "app/database/chroma_store")
     CHROMA_COLLECTION_NAME: str = os.getenv("CHROMA_COLLECTION_NAME", "researchiq")
 
-    # --- Embeddings (not wired up yet) ---
+    # --- Embeddings ---
     EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
+
+    # --- Retrieval ---
+    MIN_SIMILARITY_THRESHOLD: float = float(os.getenv("MIN_SIMILARITY_THRESHOLD", "0.45"))
+
+    # Synthesis-style queries (summarize/compare/research gaps/...) pull a
+    # bounded number of representative chunks from EVERY attached paper
+    # instead of a single global top-k — see retrieval_service for why.
+    SYNTHESIS_CHUNKS_PER_PAPER: int = int(os.getenv("SYNTHESIS_CHUNKS_PER_PAPER", "3"))
+    SYNTHESIS_MAX_TOTAL_CHUNKS: int = int(os.getenv("SYNTHESIS_MAX_TOTAL_CHUNKS", "20"))
 
     # --- Logging ---
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

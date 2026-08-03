@@ -15,9 +15,11 @@ export function CitationChip({ title, page, onClick, className }) {
     >
       <FileText className="size-3 shrink-0 text-indigo-500" strokeWidth={2} />
       <span className="max-w-[14rem] truncate">{title}</span>
-      <span className="shrink-0 rounded-full bg-indigo-100 px-1.5 py-px text-[10px] font-semibold text-indigo-600 group-hover:bg-indigo-200/70">
-        p.{page}
-      </span>
+      {page != null && (
+        <span className="shrink-0 rounded-full bg-indigo-100 px-1.5 py-px text-[10px] font-semibold text-indigo-600 group-hover:bg-indigo-200/70">
+          p.{page}
+        </span>
+      )}
     </button>
   )
 }

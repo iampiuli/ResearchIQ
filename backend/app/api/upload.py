@@ -98,7 +98,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     Run one file through duplicate detection and, if new, the full
     validate/save/extract/chunk/embed/store pipeline.
 
-    Returns {"kind": "duplicate", "filename": ...} or
+    Returns {"kind": "duplicate", "filename": ..., "paper_id": ...} or
     {"kind": "success", "metadata": {...}}.
     """
     filename = file.filename or "unknown.pdf"
@@ -108,7 +108,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     existing = known_hashes.get(file_hash)
     if existing:
         logger.info(f"Duplicate upload skipped: '{filename}' matches existing paper {existing['id']}")
-        return {"kind": "duplicate", "filename": filename}
+        return {"kind": "duplicate", "filename": filename, "paper_id": existing["id"]}
 
     file_id = str(uuid.uuid4())
     stored_filename = f"{file_id}.pdf"
@@ -138,6 +138,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
         chunks=chunks,
         embeddings=embeddings,
         filename=stored_filename,
+        original_filename=filename,
         page_count=page_count,
         uploaded_at=uploaded_at,
     )
@@ -202,7 +203,13 @@ async def upload_papers(files: list[UploadFile] = File(...)) -> MultiUploadRespo
             continue
 
         if result["kind"] == "duplicate":
-            duplicates.append(DuplicateFileResult(filename=result["filename"], status="already_uploaded"))
+            duplicates.append(
+                DuplicateFileResult(
+                    filename=result["filename"],
+                    status="already_uploaded",
+                    paper_id=result["paper_id"],
+                )
+            )
         else:
             m = result["metadata"]
             uploaded.append(

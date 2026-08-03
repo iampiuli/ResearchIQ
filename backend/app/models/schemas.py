@@ -6,6 +6,7 @@ typed contracts.
 """
 
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -30,6 +31,7 @@ class UploadedFileResult(BaseModel):
 class DuplicateFileResult(BaseModel):
     filename: str
     status: str
+    paper_id: str
 
 
 class FailedFileResult(BaseModel):
@@ -58,16 +60,23 @@ class PaperSummary(BaseModel):
     size: int
     uploaded_at: str
     status: str
+    page_count: Optional[int] = None
 
 
 class ChatRequest(BaseModel):
-    question: str
-    paper_id: Optional[str] = None
+    query: str
+    paper_ids: Optional[list[str]] = None
+
+
+class ChatSource(BaseModel):
+    filename: str
+    paper_id: str
 
 
 class ChatResponse(BaseModel):
+    query: str
     answer: str
-    sources: list = []
+    sources: list[ChatSource] = []
 
 
 class SearchRequest(BaseModel):
