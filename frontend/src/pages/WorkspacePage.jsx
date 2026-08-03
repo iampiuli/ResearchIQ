@@ -284,11 +284,14 @@ export function WorkspacePage() {
       const data = await sendChatMessage(content, paperIds)
       const citations = (data.sources ?? []).map((source) => ({
         paperId: source.paper_id,
-        // /chat returns ChromaDB's stored (UUID-based) filename, not the
-        // original upload name — resolve the human-readable title from the
-        // already-fetched papers list when we have it, falling back to the
-        // stored filename if this paper isn't in the loaded list.
-        paperTitle: papers.find((paper) => paper.id === source.paper_id)?.title ?? source.filename,
+        // The backend now resolves a human-readable name itself
+        // (original_filename), so this never depends on the papers list
+        // having loaded — that lookup is kept only as a secondary fallback,
+        // with the opaque stored filename as the absolute last resort.
+        paperTitle:
+          source.original_filename ||
+          papers.find((paper) => paper.id === source.paper_id)?.title ||
+          source.filename,
       }))
       const assistantMessage = { id: `m${messageId++}`, role: "assistant", content: data.answer, citations }
       appendMessageToWorkspace(workspaceId, assistantMessage)

@@ -70,6 +70,10 @@ class ChatRequest(BaseModel):
 
 class ChatSource(BaseModel):
     filename: str
+    # Human-readable name (falls back to `filename` server-side if a paper's
+    # stored data has no better name) — the frontend should always prefer
+    # this over `filename` (the opaque, stored UUID-based name) for display.
+    original_filename: str
     paper_id: str
 
 

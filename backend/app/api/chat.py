@@ -63,7 +63,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
         paper_id = chunk.get("paper_id")
         if paper_id not in seen_paper_ids:
             seen_paper_ids.add(paper_id)
-            sources.append(ChatSource(filename=chunk.get("filename"), paper_id=paper_id))
+            sources.append(
+                ChatSource(
+                    filename=chunk.get("filename"),
+                    original_filename=chunk.get("original_filename") or chunk.get("filename"),
+                    paper_id=paper_id,
+                )
+            )
 
     logger.info(f"Chat answer generated for query: {request.query} ({len(sources)} source(s))")
     return ChatResponse(query=request.query, answer=answer, sources=sources)
