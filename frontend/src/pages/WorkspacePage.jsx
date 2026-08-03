@@ -28,8 +28,6 @@ const ACTIVE_WORKSPACE_ID_KEY = "researchiq.activeWorkspaceId"
 // Pre-workspace model — read once for a one-time migration, then discarded.
 const LEGACY_CONVERSATIONS_STORAGE_KEY = "researchiq.conversations"
 
-let messageId = 1
-
 /** Map the backend's PaperSummary shape (snake_case) to what the UI components expect. */
 function toUiPaper(paperSummary) {
   return {
@@ -139,21 +137,26 @@ export function WorkspacePage() {
   // away from — only show the indicator when it belongs to what's on screen.
   const isThinkingHere = isThinking && pendingWorkspaceId === activeWorkspaceId
 
-  async function loadPapers() {
+  async function loadPapers(signal) {
     setPapersStatus("loading")
     setPapersError(null)
     try {
-      const data = await fetchPapers()
+      const data = await fetchPapers(signal)
       setPapers(data.map(toUiPaper))
       setPapersStatus("success")
     } catch (err) {
+      // StrictMode's dev-only double-mount aborts the first mount's in-flight
+      // request; that's expected and not a real failure, so don't surface it.
+      if (err.name === "AbortError") return
       setPapersStatus("error")
       setPapersError(err.message || "Failed to load papers.")
     }
   }
 
   useEffect(() => {
-    loadPapers()
+    const controller = new AbortController()
+    loadPapers(controller.signal)
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
@@ -272,7 +275,7 @@ export function WorkspacePage() {
 
     const workspaceId = activeWorkspaceId
     const paperIds = activeWorkspace.attachedPaperIds
-    const userMessage = { id: `m${messageId++}`, role: "user", content }
+    const userMessage = { id: crypto.randomUUID(), role: "user", content }
 
     appendMessageToWorkspace(workspaceId, userMessage)
     setMessages((prev) => [...prev, userMessage])
@@ -293,7 +296,7 @@ export function WorkspacePage() {
           papers.find((paper) => paper.id === source.paper_id)?.title ||
           source.filename,
       }))
-      const assistantMessage = { id: `m${messageId++}`, role: "assistant", content: data.answer, citations }
+      const assistantMessage = { id: crypto.randomUUID(), role: "assistant", content: data.answer, citations }
       appendMessageToWorkspace(workspaceId, assistantMessage)
       // The user may have switched to a different (or new) workspace while
       // this request was in flight — only reflect the reply on screen if
@@ -303,7 +306,7 @@ export function WorkspacePage() {
       }
     } catch (err) {
       const assistantMessage = {
-        id: `m${messageId++}`,
+        id: crypto.randomUUID(),
         role: "assistant",
         content: err.message || "Something went wrong while generating an answer. Please try again.",
         isError: true,

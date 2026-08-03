@@ -48,8 +48,8 @@ export function fileUrlFor(storedFilename) {
 }
 
 /** GET /papers — list of previously uploaded papers. */
-export async function fetchPapers() {
-  const response = await fetch(`${API_BASE_URL}/papers`)
+export async function fetchPapers(signal) {
+  const response = await fetch(`${API_BASE_URL}/papers`, { signal })
   if (!response.ok) throw new ApiError(await parseErrorMessage(response), response.status)
   return response.json()
 }
