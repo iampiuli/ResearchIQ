@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="rq-icon-title">
+  <title id="rq-icon-title">ResearchIQ icon</title>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="512" height="512" rx="114" ry="114" fill="#5B4CF7"/>
+
+  <!-- Document -->
+  <g>
+    <path d="M168,118 L316,118 L372,174 L372,376 Q372,396 352,396 L168,396 Q148,396 148,376 L148,138 Q148,118 168,118 Z" fill="#FFFFFF"/>
+    <path d="M316,118 L372,174 L316,174 Z" fill="#E4E1FF"/>
+
+    <!-- Text lines -->
+    <rect x="174" y="196" width="140" height="14" rx="7" fill="#5B4CF7" fill-opacity="0.88"/>
+    <rect x="174" y="230" width="140" height="14" rx="7" fill="#5B4CF7" fill-opacity="0.88"/>
+    <rect x="174" y="264" width="92" height="14" rx="7" fill="#5B4CF7" fill-opacity="0.88"/>
+
+    <!-- Quotation mark (lightened, secondary) -->
+    <path transform="translate(176,296) scale(2.66667)" fill="#5B4CF7" fill-opacity="0.4"
+      d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z
+         M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+  </g>
+
+  <!-- Sparkle accent -->
+  <g fill="#FFFFFF">
+    <path transform="translate(334,100) scale(2.66667)"
+      d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+    <path transform="translate(388,156)" fill-opacity="0.85"
+      d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+  </g>
+</svg>

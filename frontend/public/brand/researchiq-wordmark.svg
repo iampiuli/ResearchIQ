@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" width="300" height="64" role="img" aria-labelledby="rq-wordmark-title">
+  <title id="rq-wordmark-title">ResearchIQ wordmark</title>
+  <text x="2" y="46"
+    font-family="'Geist Variable','Inter','SF Pro Display',-apple-system,'Segoe UI',sans-serif"
+    font-weight="700" font-size="44" letter-spacing="-0.9">
+    <tspan fill="#111827">Research</tspan><tspan fill="#5B4CF7">IQ</tspan>
+  </text>
+</svg>

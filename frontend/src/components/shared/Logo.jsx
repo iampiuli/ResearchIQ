@@ -1,17 +1,25 @@
-import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Logo({ className, iconOnly = false }) {
+  if (iconOnly) {
+    return (
+      <img
+        src="/brand/researchiq-icon.svg"
+        alt="ResearchIQ"
+        width={512}
+        height={512}
+        className={cn("size-8", className)}
+      />
+    )
+  }
+
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <span className="flex size-8 items-center justify-center rounded-lg bg-indigo-600">
-        <Sparkles className="size-4 text-white" strokeWidth={2.25} />
-      </span>
-      {!iconOnly && (
-        <span className="text-base font-semibold tracking-tight text-foreground">
-          Research<span className="text-indigo-600">IQ</span>
-        </span>
-      )}
-    </div>
+    <img
+      src="/brand/researchiq-logo.svg"
+      alt="ResearchIQ"
+      width={420}
+      height={120}
+      className={cn("h-9 w-auto", className)}
+    />
   )
 }

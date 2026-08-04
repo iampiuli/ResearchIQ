@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="rq-favicon-title">
+  <title id="rq-favicon-title">ResearchIQ favicon</title>
+
+  <!-- Simplified for legibility at 16-32px: bolder shapes, no fine interior detail -->
+  <rect x="0" y="0" width="512" height="512" rx="120" ry="120" fill="#5B4CF7"/>
+
+  <path d="M164,110 L322,110 L382,170 L382,382 Q382,404 360,404 L164,404 Q142,404 142,382 L142,132 Q142,110 164,110 Z" fill="#FFFFFF"/>
+  <path d="M322,110 L382,170 L322,170 Z" fill="#E4E1FF"/>
+
+  <path fill="#FFFFFF" transform="translate(330,96) scale(3.2)"
+    d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+</svg>
