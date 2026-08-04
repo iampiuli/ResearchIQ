@@ -20,12 +20,12 @@ export function Topbar({
       </Button>
 
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-sm font-semibold text-foreground">
+        <h1 className="truncate text-[15px] font-semibold tracking-tight text-foreground">
           {hasWorkspace ? workspaceName : "No workspace selected"}
         </h1>
         {hasWorkspace && (
-          <p className="truncate text-xs text-muted-foreground">
-            {paperCount} paper{paperCount === 1 ? "" : "s"} in this workspace
+          <p className="mt-0.5 truncate text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+            {paperCount} {paperCount === 1 ? "Paper" : "Papers"}
           </p>
         )}
       </div>

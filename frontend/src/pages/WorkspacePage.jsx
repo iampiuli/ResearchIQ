@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { FolderPlus, MessagesSquare } from "lucide-react"
+import { ChevronDown, FolderPlus, MessagesSquare } from "lucide-react"
 import { WorkspaceLayout } from "@/layouts/WorkspaceLayout"
 import { Sidebar } from "@/components/workspace/Sidebar"
 import { Topbar } from "@/components/workspace/Topbar"
@@ -15,15 +15,24 @@ import { fetchPapers, fileUrlFor, sendChatMessage, uploadPapers } from "@/lib/ap
 // as a synthesis-style query, so it automatically pulls representative
 // context from every paper attached to the workspace rather than a single
 // global top-k match — no special-casing needed here on the frontend.
-const SUGGESTED_PROMPTS = [
+// Split into a primary row (always visible) and secondary row (behind
+// "More") purely to keep the prompt area from feeling crowded — both sets
+// behave identically once clicked.
+const PRIMARY_PROMPTS = [
   "Summarize these papers",
   "Compare these papers",
   "What are the research gaps?",
   "What datasets are used?",
   "What benchmarks are used?",
-  "Give me a literature review of these papers",
-  "What future work do these papers suggest?",
 ]
+const SECONDARY_PROMPTS = ["Give me a literature review of these papers", "What future work do these papers suggest?"]
+
+const PROMPT_CHIP_CLASS = cn(
+  "rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-xs font-medium text-muted-foreground shadow-xs outline-none",
+  "transition-all duration-150 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md",
+  "active:translate-y-0 active:shadow-xs",
+  "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
+)
 
 const WORKSPACES_STORAGE_KEY = "researchiq.workspaces"
 const ACTIVE_WORKSPACE_ID_KEY = "researchiq.activeWorkspaceId"
@@ -130,6 +139,7 @@ export function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sourceOpen, setSourceOpen] = useState(false)
   const [pdfCollapsed, setPdfCollapsed] = useState(loadPdfCollapsed)
+  const [showMorePrompts, setShowMorePrompts] = useState(false)
   // Bumped on every request to focus the sidebar search input (⌘K or the
   // topbar search bar). Sidebar watches this and focuses whichever of its
   // two instances (desktop aside / mobile drawer) is actually visible.
@@ -527,7 +537,7 @@ export function WorkspacePage() {
                   <div
                     ref={scrollRef}
                     onScroll={handleTranscriptScroll}
-                    className="flex-1 overflow-y-auto px-6 py-8 lg:px-10"
+                    className="scroll-thin flex-1 overflow-y-auto px-6 py-8 lg:px-10"
                   >
                     <div className="mx-auto max-w-3xl space-y-8">
                       {messages.length === 0 && !isThinkingHere && (
@@ -552,22 +562,58 @@ export function WorkspacePage() {
 
                   <div className="border-t border-border bg-card px-6 py-5 lg:px-10">
                     <div className="mx-auto max-w-3xl">
-                      <div className="mb-3 flex flex-wrap gap-2.5">
-                        {SUGGESTED_PROMPTS.map((prompt) => (
+                      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+                        {PRIMARY_PROMPTS.map((prompt) => (
                           <button
                             key={prompt}
                             type="button"
                             onClick={() => setDraft(prompt)}
-                            className={cn(
-                              "rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-xs font-medium text-muted-foreground shadow-xs outline-none",
-                              "transition-all duration-150 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md",
-                              "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
-                            )}
+                            className={PROMPT_CHIP_CLASS}
                           >
                             {prompt}
                           </button>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => setShowMorePrompts((v) => !v)}
+                          aria-expanded={showMorePrompts}
+                          className={cn(
+                            "flex items-center gap-1 rounded-xl border border-dashed border-border bg-transparent px-3 py-2.5 text-xs font-medium text-muted-foreground outline-none",
+                            "transition-all duration-150 hover:border-indigo-200 hover:text-indigo-700",
+                            "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
+                          )}
+                        >
+                          {showMorePrompts ? "Less" : "More"}
+                          <ChevronDown
+                            className={cn("size-3.5 transition-transform duration-200", showMorePrompts && "rotate-180")}
+                          />
+                        </button>
                       </div>
+                      <AnimatePresence initial={false}>
+                        {showMorePrompts && (
+                          <motion.div
+                            key="secondary-prompts"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mb-3 flex flex-wrap gap-2.5">
+                              {SECONDARY_PROMPTS.map((prompt) => (
+                                <button
+                                  key={prompt}
+                                  type="button"
+                                  onClick={() => setDraft(prompt)}
+                                  className={PROMPT_CHIP_CLASS}
+                                >
+                                  {prompt}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                       <ChatInput value={draft} onChange={setDraft} onSubmit={handleSend} disabled={isThinking} />
                     </div>
                   </div>

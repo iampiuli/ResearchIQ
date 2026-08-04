@@ -124,8 +124,8 @@ function SidebarRail({
   onRequestSearchFocus,
 }) {
   return (
-    <div className="flex h-full w-16 flex-col items-center">
-      <div className="flex flex-col items-center gap-3 border-b border-border p-3">
+    <div className="flex h-full w-[72px] flex-col items-center">
+      <div className="flex flex-col items-center gap-3.5 border-b border-border px-3 py-4">
         <Link to="/" aria-label="ResearchIQ home" className={cn("rounded-lg outline-none", FOCUS_RING)}>
           <Logo iconOnly />
         </Link>
@@ -135,7 +135,7 @@ function SidebarRail({
           aria-label="Expand sidebar"
           title="Expand sidebar"
           className={cn(
-            "flex size-8 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground",
+            "flex size-8 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
             FOCUS_RING
           )}
         >
@@ -143,7 +143,7 @@ function SidebarRail({
         </button>
       </div>
 
-      <div className="flex flex-col items-center gap-1.5 border-b border-border p-3">
+      <div className="flex flex-col items-center gap-2 border-b border-border px-3 py-4">
         <button
           type="button"
           onClick={onUploadClick}
@@ -151,7 +151,7 @@ function SidebarRail({
           aria-label="Upload papers"
           title="Upload papers"
           className={cn(
-            "flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50",
+            "flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
             FOCUS_RING
           )}
         >
@@ -166,7 +166,7 @@ function SidebarRail({
           aria-label="Search papers"
           title="Search papers"
           className={cn(
-            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground",
+            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
             FOCUS_RING
           )}
         >
@@ -174,7 +174,7 @@ function SidebarRail({
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col items-center gap-1.5 overflow-y-auto p-3">
+      <div className="scroll-thin flex flex-1 flex-col items-center gap-2 overflow-y-auto px-3 py-4">
         {workspaces.map((workspace) => (
           <button
             key={workspace.id}
@@ -183,7 +183,7 @@ function SidebarRail({
             aria-label={workspace.name}
             title={workspace.name}
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-lg outline-none transition-colors duration-150",
+              "flex size-9 shrink-0 items-center justify-center rounded-lg outline-none transition-colors duration-150 active:translate-y-px",
               workspace.id === activeWorkspaceId
                 ? "bg-indigo-50/70 text-indigo-700"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -195,13 +195,13 @@ function SidebarRail({
         ))}
       </div>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-border px-3 py-4">
         <button
           type="button"
           aria-label="Settings"
           title="Settings"
           className={cn(
-            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground",
+            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
             FOCUS_RING
           )}
         >
@@ -258,7 +258,7 @@ function SidebarContent({
 
   return (
     <div className="flex h-full w-[280px] flex-col">
-      <div className="flex items-center justify-between border-b border-border p-4">
+      <div className="flex items-center justify-between border-b border-border px-4 py-5">
         <Link to="/" aria-label="ResearchIQ home" className={cn("rounded-lg outline-none", FOCUS_RING)}>
           <Logo />
         </Link>
@@ -269,7 +269,7 @@ function SidebarContent({
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
             className={cn(
-              "flex size-7 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground",
+              "flex size-7 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
               FOCUS_RING
             )}
           >
@@ -294,22 +294,22 @@ function SidebarContent({
       <div className="border-b border-border p-4">
         <div
           className={cn(
-            "flex items-center gap-2 rounded-xl border border-border bg-muted px-3 py-2.5 transition-shadow duration-150",
+            "flex items-center gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 transition-shadow duration-150",
             "focus-within:border-indigo-300 focus-within:bg-card focus-within:shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/15"
           )}
         >
-          <Search className="size-4 shrink-0 text-muted-foreground/70" strokeWidth={2} />
+          <Search className="size-3.5 shrink-0 text-muted-foreground/70" strokeWidth={2} />
           <input
             ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search papers…"
-            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none"
+            className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/80 focus:outline-none"
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="scroll-thin flex-1 overflow-y-auto p-4">
         <div className="mb-5">
           <SectionHeader
             title="Workspaces"
@@ -506,29 +506,49 @@ export function Sidebar({ open, onClose, ...contentProps }) {
   return (
     <>
       <motion.aside
-        animate={{ width: collapsed ? 64 : 280 }}
+        animate={{ width: collapsed ? 72 : 280 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="hidden lg:flex lg:shrink-0 lg:flex-col lg:overflow-hidden lg:border-r lg:border-border lg:bg-card"
       >
-        {collapsed ? (
-          <SidebarRail
-            onExpand={() => setCollapsed(false)}
-            onUploadClick={contentProps.onUploadClick}
-            isUploading={contentProps.isUploading}
-            hasActiveWorkspace={Boolean(contentProps.activeWorkspaceId)}
-            workspaces={contentProps.workspaces}
-            activeWorkspaceId={contentProps.activeWorkspaceId}
-            onSelectWorkspace={contentProps.onSelectWorkspace}
-            onRequestSearchFocus={contentProps.onRequestSearchFocus}
-          />
-        ) : (
-          <SidebarContent
-            {...contentProps}
-            sections={sections}
-            onToggleSection={toggleSection}
-            onCollapse={() => setCollapsed(true)}
-          />
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {collapsed ? (
+            <motion.div
+              key="rail"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="h-full"
+            >
+              <SidebarRail
+                onExpand={() => setCollapsed(false)}
+                onUploadClick={contentProps.onUploadClick}
+                isUploading={contentProps.isUploading}
+                hasActiveWorkspace={Boolean(contentProps.activeWorkspaceId)}
+                workspaces={contentProps.workspaces}
+                activeWorkspaceId={contentProps.activeWorkspaceId}
+                onSelectWorkspace={contentProps.onSelectWorkspace}
+                onRequestSearchFocus={contentProps.onRequestSearchFocus}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="h-full"
+            >
+              <SidebarContent
+                {...contentProps}
+                sections={sections}
+                onToggleSection={toggleSection}
+                onCollapse={() => setCollapsed(true)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.aside>
 
       <AnimatePresence>

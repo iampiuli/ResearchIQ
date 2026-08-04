@@ -142,7 +142,7 @@ export function PDFViewer({
         <PageControls page={page} totalPages={numPages} onPrevPage={onPrevPage} onNextPage={onNextPage} />
       </div>
 
-      <div className="relative flex-1 overflow-auto bg-gray-50 p-6">
+      <div className="scroll-thin relative flex-1 overflow-auto bg-gray-50 p-6">
         {highlightedPage != null && highlightedPage === page && (
           <div className="mx-auto mb-3 flex max-w-fit items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
             <AlertCircle className="size-3" />

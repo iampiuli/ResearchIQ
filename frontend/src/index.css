@@ -107,4 +107,26 @@
   .surface-strong {
     @apply border border-border bg-card shadow-sm;
   }
+
+  /* One consistent thin scrollbar for every scrollable workspace surface
+     (chat transcript, sidebar lists, PDF panel). Subtle by default, a touch
+     darker on hover — never a visual centerpiece. */
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #d1d5db;
+  }
 }
