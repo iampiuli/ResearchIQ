@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { FolderPlus, MessagesSquare } from "lucide-react"
 import { WorkspaceLayout } from "@/layouts/WorkspaceLayout"
 import { Sidebar } from "@/components/workspace/Sidebar"
 import { Topbar } from "@/components/workspace/Topbar"
 import { ChatMessage, TypingIndicator } from "@/components/workspace/ChatMessage"
 import { ChatInput } from "@/components/workspace/ChatInput"
 import { PDFViewer } from "@/components/workspace/PDFViewer"
+import { Toast } from "@/components/shared/Toast"
 import { cn, formatRelativeTime } from "@/lib/utils"
 import { fetchPapers, fileUrlFor, sendChatMessage, uploadPapers } from "@/lib/api"
 
@@ -118,8 +120,17 @@ export function WorkspacePage() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sourceOpen, setSourceOpen] = useState(false)
+  // Bumped on every request to focus the sidebar search input (⌘K or the
+  // topbar search bar). Sidebar watches this and focuses whichever of its
+  // two instances (desktop aside / mobile drawer) is actually visible.
+  const [searchFocusToken, setSearchFocusToken] = useState(0)
 
   const scrollRef = useRef(null)
+  // Tracks whether the user was already at (or near) the bottom of the
+  // transcript, updated live via onScroll. Auto-scroll only fires when this
+  // is true — otherwise a reply arriving while the user is reading back
+  // through history would yank them down to the bottom.
+  const isNearBottomRef = useRef(true)
 
   const activeWorkspace = workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? null
   const activePaper = papers.find((paper) => paper.id === activePaperId) ?? null
@@ -160,8 +171,33 @@ export function WorkspacePage() {
   }, [])
 
   useEffect(() => {
+    if (!isNearBottomRef.current) return
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
   }, [messages, isThinkingHere])
+
+  function handleTranscriptScroll() {
+    const el = scrollRef.current
+    if (!el) return
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight
+    isNearBottomRef.current = distanceFromBottom < 120
+  }
+
+  /** Opens the sidebar (mobile) and asks it to focus its search input — used by both ⌘K and the topbar search bar. */
+  function requestSearchFocus() {
+    setSidebarOpen(true)
+    setSearchFocusToken((token) => token + 1)
+  }
+
+  useEffect(() => {
+    function onKeyDown(event) {
+      const isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k"
+      if (!isSearchShortcut) return
+      event.preventDefault()
+      requestSearchFocus()
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [])
 
   // Persist workspaces (incl. their messages and attached papers) across reloads.
   useEffect(() => {
@@ -200,6 +236,9 @@ export function WorkspacePage() {
     const workspace = workspaces.find((w) => w.id === activeWorkspaceId) ?? null
     setMessages(workspace?.messages ?? [])
     setDraft("")
+    // A freshly-opened workspace should always land at the bottom of its own
+    // conversation — this isn't "yanking" since the user hasn't scrolled yet.
+    isNearBottomRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeWorkspaceId])
 
@@ -421,7 +460,7 @@ export function WorkspacePage() {
     onSearchChange: setSearchQuery,
     onUploadClick: handleUploadClick,
     isUploading,
-    uploadFeedback,
+    searchFocusToken,
   }
 
   return (
@@ -443,6 +482,7 @@ export function WorkspacePage() {
             onOpenSidebar={() => setSidebarOpen(true)}
             onOpenSource={() => setSourceOpen(true)}
             onUploadClick={handleUploadClick}
+            onSearchClick={requestSearchFocus}
             isUploading={isUploading}
             uploadDisabled={!activeWorkspace}
           />
@@ -459,45 +499,66 @@ export function WorkspacePage() {
               </div>
 
               {!activeWorkspace ? (
-                <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-                  <p className="text-sm font-medium text-foreground">Create a workspace to get started</p>
-                  <p className="max-w-sm text-sm text-muted-foreground">
-                    Each workspace keeps its own papers and conversation. Use "+ New Workspace" in the
-                    sidebar to create one.
-                  </p>
+                <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+                  <span className="flex size-12 items-center justify-center rounded-2xl border border-border bg-card">
+                    <FolderPlus className="size-5 text-indigo-500" strokeWidth={1.75} />
+                  </span>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-foreground">Create a workspace to get started</p>
+                    <p className="max-w-sm text-sm text-muted-foreground">
+                      Each workspace keeps its own papers and conversation. Use "+ New Workspace" in the
+                      sidebar to create one.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <>
-                  <div ref={scrollRef} className="flex-1 space-y-8 overflow-y-auto px-6 py-8 lg:px-10">
-                    {messages.length === 0 && !isThinkingHere && (
-                      <p className="text-sm text-muted-foreground">
-                        Upload a paper, then ask a question to get a grounded answer with sources.
-                      </p>
-                    )}
-                    {messages.map((message) => (
-                      <ChatMessage key={message.id} message={message} onCitationClick={handleCitationClick} />
-                    ))}
-                    {isThinkingHere && <TypingIndicator />}
+                  <div
+                    ref={scrollRef}
+                    onScroll={handleTranscriptScroll}
+                    className="flex-1 overflow-y-auto px-6 py-8 lg:px-10"
+                  >
+                    <div className="mx-auto max-w-3xl space-y-8">
+                      {messages.length === 0 && !isThinkingHere && (
+                        <div className="flex flex-col items-center gap-3 py-10 text-center">
+                          <span className="flex size-12 items-center justify-center rounded-2xl border border-border bg-card">
+                            <MessagesSquare className="size-5 text-indigo-500" strokeWidth={1.75} />
+                          </span>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-foreground">Ask about your papers</p>
+                            <p className="max-w-sm text-sm text-muted-foreground">
+                              Upload a paper, then ask a question to get a grounded answer with sources.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {messages.map((message) => (
+                        <ChatMessage key={message.id} message={message} onCitationClick={handleCitationClick} />
+                      ))}
+                      {isThinkingHere && <TypingIndicator />}
+                    </div>
                   </div>
 
-                  <div className="border-t border-border bg-white px-6 py-5 lg:px-10">
-                    <div className="mb-3 flex flex-wrap gap-2.5">
-                      {SUGGESTED_PROMPTS.map((prompt) => (
-                        <button
-                          key={prompt}
-                          type="button"
-                          onClick={() => setDraft(prompt)}
-                          className={cn(
-                            "rounded-xl border border-border bg-white px-3.5 py-2.5 text-left text-xs font-medium text-muted-foreground shadow-xs outline-none",
-                            "transition-all duration-150 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md",
-                            "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
-                          )}
-                        >
-                          {prompt}
-                        </button>
-                      ))}
+                  <div className="border-t border-border bg-card px-6 py-5 lg:px-10">
+                    <div className="mx-auto max-w-3xl">
+                      <div className="mb-3 flex flex-wrap gap-2.5">
+                        {SUGGESTED_PROMPTS.map((prompt) => (
+                          <button
+                            key={prompt}
+                            type="button"
+                            onClick={() => setDraft(prompt)}
+                            className={cn(
+                              "rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-xs font-medium text-muted-foreground shadow-xs outline-none",
+                              "transition-all duration-150 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md",
+                              "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
+                            )}
+                          >
+                            {prompt}
+                          </button>
+                        ))}
+                      </div>
+                      <ChatInput value={draft} onChange={setDraft} onSubmit={handleSend} disabled={isThinking} />
                     </div>
-                    <ChatInput value={draft} onChange={setDraft} onSubmit={handleSend} disabled={isThinking} />
                   </div>
                 </>
               )}
@@ -535,7 +596,7 @@ export function WorkspacePage() {
                     animate={{ x: 0 }}
                     exit={{ x: "100%" }}
                     transition={{ duration: 0.25, ease: "easeInOut" }}
-                    className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-border bg-white xl:hidden"
+                    className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-border bg-card xl:hidden"
                   >
                     <PDFViewer
                       paper={activePaper}
@@ -557,6 +618,8 @@ export function WorkspacePage() {
           </div>
         </div>
       </div>
+
+      <Toast toast={uploadFeedback} onDismiss={() => setUploadFeedback(null)} />
     </WorkspaceLayout>
   )
 }

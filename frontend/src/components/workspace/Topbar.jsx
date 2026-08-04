@@ -4,17 +4,18 @@ import { cn } from "@/lib/utils"
 
 const FOCUS_RING = "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
 
-export function Topbar({ onOpenSidebar, onOpenSource, onUploadClick, isUploading, uploadDisabled }) {
+export function Topbar({ onOpenSidebar, onOpenSource, onUploadClick, onSearchClick, isUploading, uploadDisabled }) {
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-white px-4 sm:px-6">
+    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-4 sm:px-6">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onOpenSidebar} aria-label="Open sidebar">
         <PanelLeft className="size-4" />
       </Button>
 
       <button
         type="button"
+        onClick={onSearchClick}
         className={cn(
-          "flex max-w-md flex-1 items-center gap-2.5 rounded-xl border border-border bg-muted px-3.5 py-2.5 text-sm text-muted-foreground shadow-xs outline-none transition-all duration-150 hover:border-gray-300 hover:bg-white hover:shadow-sm",
+          "flex max-w-md flex-1 items-center gap-2.5 rounded-xl border border-border bg-muted px-3.5 py-2.5 text-sm text-muted-foreground shadow-xs outline-none transition-all duration-150 hover:border-gray-300 hover:bg-card hover:shadow-sm",
           FOCUS_RING
         )}
       >
@@ -22,7 +23,7 @@ export function Topbar({ onOpenSidebar, onOpenSource, onUploadClick, isUploading
         <span className="flex-1 truncate text-left font-normal text-muted-foreground">
           Search papers, workspaces…
         </span>
-        <kbd className="hidden shrink-0 rounded-md border border-border bg-white px-1.5 py-0.5 font-sans text-[10px] font-medium text-muted-foreground sm:inline">
+        <kbd className="hidden shrink-0 rounded-md border border-border bg-card px-1.5 py-0.5 font-sans text-[10px] font-medium text-muted-foreground sm:inline">
           ⌘K
         </kbd>
       </button>

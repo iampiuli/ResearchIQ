@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Link } from "react-router-dom"
 import { AlertCircle, Folder, Loader2, Pencil, Plus, Search, Settings, Upload } from "lucide-react"
@@ -35,7 +35,7 @@ function InlineNameInput({ initialValue = "", placeholder, onConfirm, onCancel }
         }
       }}
       placeholder={placeholder}
-      className="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-xs font-medium text-foreground outline-none ring-2 ring-indigo-500/15"
+      className="w-full rounded-lg border border-indigo-300 bg-card px-2.5 py-2 text-xs font-medium text-foreground outline-none ring-2 ring-indigo-500/15"
     />
   )
 }
@@ -58,14 +58,23 @@ function SidebarContent({
   onSearchChange,
   onUploadClick,
   isUploading,
-  uploadFeedback,
+  searchFocusToken,
   onNavigate,
 }) {
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false)
   const [renamingWorkspaceId, setRenamingWorkspaceId] = useState(null)
   const [detailsPaper, setDetailsPaper] = useState(null)
+  const searchInputRef = useRef(null)
 
   const hasActiveWorkspace = Boolean(activeWorkspaceId)
+
+  // Fires once per focus request (⌘K / topbar search click). A no-op on
+  // whichever Sidebar instance (desktop aside vs. mobile drawer) isn't
+  // actually visible — focus() on a display:none input is a silent no-op.
+  useEffect(() => {
+    if (searchFocusToken) searchInputRef.current?.focus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchFocusToken])
 
   return (
     <div className="flex h-full flex-col">
@@ -86,28 +95,18 @@ function SidebarContent({
           {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
           {isUploading ? "Uploading…" : "Upload Papers"}
         </Button>
-        {uploadFeedback && (
-          <p
-            className={cn(
-              "flex items-start gap-1.5 rounded-lg px-2.5 py-2 text-xs",
-              uploadFeedback.type === "error" ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"
-            )}
-          >
-            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-            {uploadFeedback.message}
-          </p>
-        )}
       </div>
 
       <div className="border-b border-border p-4">
         <div
           className={cn(
             "flex items-center gap-2 rounded-xl border border-border bg-muted px-3 py-2.5 transition-shadow duration-150",
-            "focus-within:border-indigo-300 focus-within:bg-white focus-within:shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/15"
+            "focus-within:border-indigo-300 focus-within:bg-card focus-within:shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/15"
           )}
         >
           <Search className="size-4 shrink-0 text-muted-foreground/70" strokeWidth={2} />
           <input
+            ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search papers…"
@@ -191,7 +190,7 @@ function SidebarContent({
                       onClick={() => setRenamingWorkspaceId(workspace.id)}
                       aria-label={`Rename ${workspace.name}`}
                       className={cn(
-                        "shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 hover:bg-white hover:text-foreground",
+                        "shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 hover:bg-card hover:text-foreground",
                         FOCUS_RING
                       )}
                     >
@@ -281,7 +280,7 @@ function SidebarContent({
 export function Sidebar({ open, onClose, ...contentProps }) {
   return (
     <>
-      <aside className="hidden lg:flex lg:w-[280px] lg:shrink-0 lg:flex-col lg:border-r lg:border-border lg:bg-white">
+      <aside className="hidden lg:flex lg:w-[280px] lg:shrink-0 lg:flex-col lg:border-r lg:border-border lg:bg-card">
         <SidebarContent {...contentProps} />
       </aside>
 
@@ -302,7 +301,7 @@ export function Sidebar({ open, onClose, ...contentProps }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.25, ease: "easeInOut" }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-white lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-card lg:hidden"
             >
               <SidebarContent {...contentProps} onNavigate={onClose} />
             </motion.aside>
