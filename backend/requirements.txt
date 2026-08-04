@@ -1,3 +1,9 @@
+# CPU-only PyTorch wheel index. Without this, sentence-transformers pulls
+# the default PyPI torch build, which bundles multi-GB CUDA/nvidia-* wheels
+# that OOM Render's free-tier (512MB) build. Render has no GPU, so CPU-only
+# torch is functionally identical to what actually ran before.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 python-dotenv==1.0.1
@@ -5,17 +11,20 @@ pydantic==2.9.2
 python-multipart==0.0.9
 
 # LLM / RAG orchestration
-langchain==0.3.0
+# (bare `langchain` and `langchain-community` were never imported anywhere
+# in app/ — only these two sub-packages are actually used, so the two
+# unused umbrella packages and their extra transitive deps are dropped.)
+langchain-text-splitters==0.3.0
 langchain-google-genai==2.0.10
-langchain-community==0.3.0
 
-# Vector store
+# Vector store (embedded/persistent mode via chromadb.PersistentClient)
 chromadb==0.5.5
 
 # PDF parsing
 PyMuPDF==1.24.10
 
 # Embeddings
+torch==2.4.1+cpu
 sentence-transformers==3.1.1
 
 # Google Gemini SDK
