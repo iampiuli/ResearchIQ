@@ -29,6 +29,15 @@ const WORKSPACES_STORAGE_KEY = "researchiq.workspaces"
 const ACTIVE_WORKSPACE_ID_KEY = "researchiq.activeWorkspaceId"
 // Pre-workspace model — read once for a one-time migration, then discarded.
 const LEGACY_CONVERSATIONS_STORAGE_KEY = "researchiq.conversations"
+const PDF_COLLAPSED_KEY = "researchiq.pdfViewer.collapsed"
+
+function loadPdfCollapsed() {
+  try {
+    return localStorage.getItem(PDF_COLLAPSED_KEY) === "1"
+  } catch {
+    return false
+  }
+}
 
 /** Map the backend's PaperSummary shape (snake_case) to what the UI components expect. */
 function toUiPaper(paperSummary) {
@@ -120,6 +129,7 @@ export function WorkspacePage() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sourceOpen, setSourceOpen] = useState(false)
+  const [pdfCollapsed, setPdfCollapsed] = useState(loadPdfCollapsed)
   // Bumped on every request to focus the sidebar search input (⌘K or the
   // topbar search bar). Sidebar watches this and focuses whichever of its
   // two instances (desktop aside / mobile drawer) is actually visible.
@@ -216,6 +226,14 @@ export function WorkspacePage() {
       // Non-fatal — just won't restore the active workspace after a reload.
     }
   }, [activeWorkspaceId])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PDF_COLLAPSED_KEY, pdfCollapsed ? "1" : "0")
+    } catch {
+      // Non-fatal — collapse state just won't persist across reloads.
+    }
+  }, [pdfCollapsed])
 
   // A stored active-workspace id may no longer exist (e.g. storage edited by
   // hand, or a workspace deleted in a future version) — validate once on mount.
@@ -461,6 +479,7 @@ export function WorkspacePage() {
     onUploadClick: handleUploadClick,
     isUploading,
     searchFocusToken,
+    onRequestSearchFocus: requestSearchFocus,
   }
 
   return (
@@ -481,23 +500,15 @@ export function WorkspacePage() {
           <Topbar
             onOpenSidebar={() => setSidebarOpen(true)}
             onOpenSource={() => setSourceOpen(true)}
-            onUploadClick={handleUploadClick}
-            onSearchClick={requestSearchFocus}
-            isUploading={isUploading}
-            uploadDisabled={!activeWorkspace}
+            workspaceName={activeWorkspace?.name}
+            paperCount={attachedPapers.length}
+            hasWorkspace={Boolean(activeWorkspace)}
+            pdfCollapsed={pdfCollapsed}
+            onTogglePdfCollapse={() => setPdfCollapsed((collapsed) => !collapsed)}
           />
 
           <div className="flex min-h-0 flex-1">
             <div className="flex min-w-0 flex-1 flex-col">
-              <div className="border-b border-border px-6 py-5 lg:px-10">
-                <h1 className="text-base font-semibold text-foreground">
-                  {activeWorkspace ? activeWorkspace.name : "No workspace selected"}
-                </h1>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {activeWorkspace ? `${attachedPapers.length} paper(s) in this workspace` : " "}
-                </p>
-              </div>
-
               {!activeWorkspace ? (
                 <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
                   <span className="flex size-12 items-center justify-center rounded-2xl border border-border bg-card">
@@ -564,20 +575,29 @@ export function WorkspacePage() {
               )}
             </div>
 
-            <aside className="hidden xl:flex xl:w-[420px] xl:shrink-0 xl:flex-col xl:border-l xl:border-border">
-              <PDFViewer
-                paper={activePaper}
-                page={activePage}
-                zoom={zoom}
-                highlightedPage={highlightedPage}
-                numPages={numPages}
-                onDocumentLoad={setNumPages}
-                onPrevPage={() => setActivePage((p) => Math.max(1, p - 1))}
-                onNextPage={() => setActivePage((p) => Math.min(numPages ?? p, p + 1))}
-                onZoomIn={() => setZoom((z) => Math.min(200, z + 10))}
-                onZoomOut={() => setZoom((z) => Math.max(50, z - 10))}
-              />
-            </aside>
+            <motion.aside
+              animate={{ width: pdfCollapsed ? 0 : 420 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className={cn(
+                "hidden xl:flex xl:shrink-0 xl:flex-col xl:overflow-hidden",
+                !pdfCollapsed && "xl:border-l xl:border-border"
+              )}
+            >
+              <div className="flex h-full w-[420px] shrink-0 flex-col">
+                <PDFViewer
+                  paper={activePaper}
+                  page={activePage}
+                  zoom={zoom}
+                  highlightedPage={highlightedPage}
+                  numPages={numPages}
+                  onDocumentLoad={setNumPages}
+                  onPrevPage={() => setActivePage((p) => Math.max(1, p - 1))}
+                  onNextPage={() => setActivePage((p) => Math.min(numPages ?? p, p + 1))}
+                  onZoomIn={() => setZoom((z) => Math.min(200, z + 10))}
+                  onZoomOut={() => setZoom((z) => Math.max(50, z - 10))}
+                />
+              </div>
+            </motion.aside>
 
             <AnimatePresence>
               {sourceOpen && (
