@@ -42,12 +42,6 @@ class Settings:
     # --- Embeddings ---
     EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 
-    # Chunks are embedded and inserted into Chroma in fixed-size batches
-    # rather than all at once, bounding peak memory for papers that produce
-    # very large chunk counts — see embedding_service/chroma_service.
-    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", "16"))
-    CHROMA_ADD_BATCH_SIZE: int = int(os.getenv("CHROMA_ADD_BATCH_SIZE", "100"))
-
     # --- Retrieval ---
     MIN_SIMILARITY_THRESHOLD: float = float(os.getenv("MIN_SIMILARITY_THRESHOLD", "0.45"))
 

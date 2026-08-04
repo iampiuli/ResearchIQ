@@ -6,28 +6,16 @@ handlers, and API routers. Business logic lives in services/ and is not
 implemented yet — this file only assembles the architecture.
 """
 
-import gc
-import os
 from pathlib import Path
 
-# Constrain onnxruntime's OpenMP-based intra-op thread pool before any
-# heavy library is imported below (onnxruntime, transitively via
-# app.api.upload -> embedding_service/chroma_service). On Render's free
-# tier (fractional CPU, 512MB RAM), the default one-thread-per-core pool
-# allocates extra per-thread memory and adds scheduling overhead with no
-# real speedup on a single vCPU slice.
-os.environ.setdefault("OMP_NUM_THREADS", "1")
-os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from fastapi import FastAPI  # noqa: E402
-from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.staticfiles import StaticFiles  # noqa: E402
-
-from app.api import upload, chat, papers, search  # noqa: E402
-from app.utils.config import settings  # noqa: E402
-from app.utils.logger import setup_logging, get_logger  # noqa: E402
-from app.utils.memory import log_stage  # noqa: E402
-from app.utils.exceptions import (  # noqa: E402
+from app.api import upload, chat, papers, search
+from app.utils.config import settings
+from app.utils.logger import setup_logging, get_logger
+from app.utils.exceptions import (
     ResearchIQException,
     researchiq_exception_handler,
     unhandled_exception_handler,
@@ -82,19 +70,7 @@ async def health_check() -> dict:
 @app.on_event("startup")
 async def on_startup() -> None:
     logger.info(f"{settings.APP_NAME} starting up in '{settings.APP_ENV}' mode")
-    log_stage(logger, "startup: import baseline")
-
-    # Deliberately not warming up embedding_service.model / chroma_service
-    # .collection here: they're cheap to construct now that torch has been
-    # dropped (see embedding_service.py), so there's nothing to gain from
-    # forcing the ONNX model download + session creation onto every boot
-    # rather than the first request that needs it. (An earlier version of
-    # this app DID warm up eagerly, back when torch + onnxruntime were both
-    # loaded — that made every deploy fail instead of just the endpoint
-    # that touched the models, since baseline import RSS was already
-    # ~552MB, at/over Render free tier's 512MB cap, before either engine
-    # had done anything. Worth remembering if eager warm-up is reconsidered.)
-    gc.collect()
+    # TODO (future): Initialize ChromaDB client / warm up embedding model here.
 
 
 @app.on_event("shutdown")

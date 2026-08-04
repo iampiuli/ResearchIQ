@@ -5,26 +5,18 @@ pydantic==2.9.2
 python-multipart==0.0.9
 
 # LLM / RAG orchestration
-# (bare `langchain` and `langchain-community` were never imported anywhere
-# in app/ — only these two sub-packages are actually used, so the two
-# unused umbrella packages and their extra transitive deps are dropped.)
-langchain-text-splitters==0.3.0
+langchain==0.3.0
 langchain-google-genai==2.0.10
+langchain-community==0.3.0
 
-# Vector store (embedded/persistent mode via chromadb.PersistentClient)
+# Vector store
 chromadb==0.5.5
 
 # PDF parsing
 PyMuPDF==1.24.10
 
-# Embeddings: generated via chromadb's own bundled ONNX export of
-# all-MiniLM-L6-v2 (chromadb.utils.embedding_functions.ONNXMiniLM_L6_V2),
-# not a separate PyTorch/sentence-transformers install. chromadb already
-# requires onnxruntime for this — adding torch on top meant every process
-# carried two full ML runtimes to do one job, which is what pushed
-# baseline import memory over Render free tier's 512MB cap before any
-# request-time work even started. No extra packages needed here beyond
-# chromadb's own onnxruntime/tokenizers/tqdm dependencies.
+# Embeddings
+sentence-transformers==3.1.1
 
 # Google Gemini SDK
 google-generativeai==0.8.2

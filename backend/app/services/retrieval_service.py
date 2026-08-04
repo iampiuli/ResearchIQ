@@ -2,10 +2,10 @@
 Retrieval Service
 
 Performs semantic similarity search over the ChromaDB "researchiq"
-collection: embeds a user query with the existing embedding model
-(embedding_service, not a newly loaded model) and retrieves similar
-chunks by cosine similarity. Does not call any LLM or summarize — pure
-vector search.
+collection: embeds a user query with the existing SentenceTransformer
+model (embedding_service, not a newly loaded model) and retrieves
+similar chunks by cosine similarity. Does not call any LLM or summarize —
+pure vector search.
 
 Two retrieval strategies are exposed:
 
