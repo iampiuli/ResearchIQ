@@ -6,16 +6,30 @@ handlers, and API routers. Business logic lives in services/ and is not
 implemented yet — this file only assembles the architecture.
 """
 
+import gc
+import os
 from pathlib import Path
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+# Constrain BLAS/torch intra-op thread pools before any heavy library is
+# imported below (torch/sentence-transformers, transitively via
+# app.api.upload -> embedding_service). On Render's free tier (fractional
+# CPU, 512MB RAM), the default one-thread-per-core pool allocates extra
+# per-thread memory and adds scheduling overhead with no real speedup on a
+# single vCPU slice.
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
-from app.api import upload, chat, papers, search
-from app.utils.config import settings
-from app.utils.logger import setup_logging, get_logger
-from app.utils.exceptions import (
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+from app.api import upload, chat, papers, search  # noqa: E402
+from app.services.chroma_service import chroma_service  # noqa: E402
+from app.services.embedding_service import embedding_service  # noqa: E402
+from app.utils.config import settings  # noqa: E402
+from app.utils.logger import setup_logging, get_logger  # noqa: E402
+from app.utils.memory import log_stage  # noqa: E402
+from app.utils.exceptions import (  # noqa: E402
     ResearchIQException,
     researchiq_exception_handler,
     unhandled_exception_handler,
@@ -70,7 +84,21 @@ async def health_check() -> dict:
 @app.on_event("startup")
 async def on_startup() -> None:
     logger.info(f"{settings.APP_NAME} starting up in '{settings.APP_ENV}' mode")
-    # TODO (future): Initialize ChromaDB client / warm up embedding model here.
+    log_stage(logger, "startup: before warm-up")
+
+    # Force both heavy singletons (SentenceTransformer weights, ChromaDB's
+    # PersistentClient/sqlite engine) to initialize here instead of lazily
+    # on the first POST /upload. Cold-loading both of them inside a live
+    # request — stacked on top of that request's own PDF/chunk/embedding
+    # buffers — is what pushed peak memory past Render free tier's 512MB
+    # cap and triggered a SIGKILL (exit 137, no traceback). Doing it once
+    # at boot makes the cost a one-time, predictable startup spike instead.
+    embedding_service.model
+    log_stage(logger, "startup: embedding model loaded")
+    chroma_service.collection
+    log_stage(logger, "startup: chroma collection ready")
+    gc.collect()
+    log_stage(logger, "startup: warm-up complete")
 
 
 @app.on_event("shutdown")

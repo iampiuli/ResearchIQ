@@ -14,6 +14,7 @@ Each file is processed independently — one failure does not abort the
 rest of the batch.
 """
 
+import gc
 import hashlib
 import json
 import uuid
@@ -42,6 +43,7 @@ from app.utils.exceptions import (
     UnsupportedFileTypeError,
 )
 from app.utils.logger import get_logger
+from app.utils.memory import log_stage
 
 logger = get_logger(__name__)
 
@@ -103,6 +105,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     """
     filename = file.filename or "unknown.pdf"
     data = await _read_validated_pdf(file)
+    log_stage(logger, "PDF validated", filename=filename, size_bytes=len(data))
 
     file_hash = hashlib.sha256(data).hexdigest()
     existing = known_hashes.get(file_hash)
@@ -115,6 +118,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     destination = upload_dir / stored_filename
     destination.write_bytes(data)
     size = len(data)
+    del data  # already on disk; extract_text re-reads it — no need to hold both copies
 
     try:
         text, page_count = pdf_service.extract_text(str(destination))
@@ -126,10 +130,10 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     uploaded_at = datetime.now(timezone.utc).isoformat()
 
     chunks = chunk_service.split_text(text)
-    chunk_service.store_chunks(file_id, chunks)
+    del text
     chunk_count = len(chunks)
 
-    embeddings = embedding_service.embed_and_store(file_id, chunks)
+    embeddings = embedding_service.embed_chunks(chunks)
     embedding_count = len(embeddings)
     embedding_dimension = embedding_service.get_embedding_dimension() if embeddings else 0
 
@@ -142,6 +146,8 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
         page_count=page_count,
         uploaded_at=uploaded_at,
     )
+    del chunks, embeddings
+    gc.collect()
 
     metadata = {
         "id": file_id,
@@ -160,6 +166,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     }
     metadata_path = upload_dir / f"{file_id}.json"
     metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    log_stage(logger, "metadata written", paper_id=file_id)
 
     # Make this file visible to duplicate checks for the rest of the batch.
     known_hashes[file_hash] = metadata
