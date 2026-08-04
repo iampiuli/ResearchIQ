@@ -13,7 +13,7 @@ export function ChatInput({ value, onChange, onSubmit, disabled }) {
   return (
     <div
       className={cn(
-        "flex items-end gap-2 rounded-2xl border border-border bg-white p-3 shadow-sm transition-shadow duration-150",
+        "flex items-end gap-2 rounded-2xl border border-border bg-card p-3 shadow-sm transition-shadow duration-150",
         "focus-within:border-indigo-300 focus-within:shadow-md focus-within:ring-4 focus-within:ring-indigo-500/10"
       )}
     >

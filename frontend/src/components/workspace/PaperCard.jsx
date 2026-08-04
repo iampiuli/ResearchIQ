@@ -38,7 +38,7 @@ export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
     <div
       className={cn(
         "group flex w-full items-start gap-1 rounded-xl border transition-colors duration-150",
-        active ? "border-indigo-200 bg-indigo-50" : "border-border bg-white hover:border-gray-300 hover:bg-muted/60 hover:shadow-sm"
+        active ? "border-indigo-200 bg-indigo-50" : "border-border bg-card hover:border-gray-300 hover:bg-muted/60 hover:shadow-sm"
       )}
     >
       <button
@@ -52,7 +52,7 @@ export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
         <span
           className={cn(
             "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border",
-            active ? "border-indigo-200 bg-white" : "border-border bg-white"
+            active ? "border-indigo-200 bg-card" : "border-border bg-card"
           )}
         >
           <FileText className="size-4 text-indigo-600" strokeWidth={1.75} />
@@ -77,7 +77,7 @@ export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
             className={cn(
               "flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150",
               "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[popup-open]:opacity-100",
-              "hover:bg-white hover:text-foreground data-[popup-open]:bg-white data-[popup-open]:text-foreground"
+              "hover:bg-card hover:text-foreground data-[popup-open]:bg-card data-[popup-open]:text-foreground"
             )}
           >
             <MoreVertical className="size-4" />

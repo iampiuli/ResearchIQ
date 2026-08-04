@@ -15,7 +15,7 @@ function DropdownMenuContent({ className, children, side = "bottom", align = "en
       <Menu.Positioner side={side} align={align} sideOffset={sideOffset} className="z-50">
         <Menu.Popup
           className={cn(
-            "min-w-[11rem] rounded-lg border border-border bg-white p-1 shadow-md outline-none",
+            "min-w-[11rem] rounded-lg border border-border bg-card p-1 shadow-md outline-none",
             "origin-[var(--transform-origin)] transition-[transform,opacity] duration-100",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
