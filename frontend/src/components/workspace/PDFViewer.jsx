@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react"
-import { AlertCircle, ChevronLeft, ChevronRight, FileWarning, Loader2, Minus, Plus, X } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { AlertCircle, ChevronLeft, ChevronRight, FileWarning, Minus, Plus, X } from "lucide-react"
 import { Document, Page, pdfjs } from "react-pdf"
 import "react-pdf/dist/Page/AnnotationLayer.css"
 import "react-pdf/dist/Page/TextLayer.css"
@@ -12,7 +13,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 function ZoomControls({ zoom, onZoomIn, onZoomOut }) {
   return (
-    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-white shadow-xs">
+    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-card shadow-xs">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -42,7 +43,7 @@ function ZoomControls({ zoom, onZoomIn, onZoomOut }) {
 
 function PageControls({ page, totalPages, onPrevPage, onNextPage }) {
   return (
-    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-white shadow-xs">
+    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-card shadow-xs">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -70,11 +71,18 @@ function PageControls({ page, totalPages, onPrevPage, onNextPage }) {
   )
 }
 
-function DocumentLoading() {
+/** Page-shaped shimmer standing in for a PDF page while it loads or re-renders. */
+function PageSkeleton() {
   return (
-    <div className="flex flex-col items-center gap-2 py-16 text-sm text-muted-foreground">
-      <Loader2 className="size-5 animate-spin" />
-      Loading PDF…
+    <div className="mx-auto flex aspect-[8.5/11] w-[280px] animate-pulse flex-col gap-3 rounded-sm border border-border bg-card p-6 shadow-sm sm:w-[340px]">
+      <div className="h-3 w-2/3 rounded bg-muted" />
+      <div className="mt-3 h-2 w-full rounded bg-muted" />
+      <div className="h-2 w-full rounded bg-muted" />
+      <div className="h-2 w-5/6 rounded bg-muted" />
+      <div className="mt-4 h-2 w-full rounded bg-muted" />
+      <div className="h-2 w-full rounded bg-muted" />
+      <div className="h-2 w-3/4 rounded bg-muted" />
+      <div className="mt-4 h-28 w-full rounded bg-muted" />
     </div>
   )
 }
@@ -114,7 +122,7 @@ export function PDFViewer({
   const subtitle = [paper.authors, paper.journal, paper.year].filter(Boolean).join(" · ")
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-card">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3.5">
         <div className="min-w-0">
           <p className="truncate text-sm leading-snug font-semibold text-foreground" title={paper.title}>
@@ -148,16 +156,26 @@ export function PDFViewer({
               file={fileProp}
               onLoadSuccess={({ numPages: loadedPages }) => onDocumentLoad?.(loadedPages)}
               onLoadError={() => onDocumentLoad?.(0)}
-              loading={<DocumentLoading />}
+              loading={<PageSkeleton />}
               error={<DocumentError />}
             >
-              <Page
-                pageNumber={page}
-                scale={zoom / 100}
-                loading={<DocumentLoading />}
-                error={<DocumentError />}
-                className="shadow-sm"
-              />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={`${paper.id}-${page}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
+                  <Page
+                    pageNumber={page}
+                    scale={zoom / 100}
+                    loading={<PageSkeleton />}
+                    error={<DocumentError />}
+                    className="shadow-sm"
+                  />
+                </motion.div>
+              </AnimatePresence>
             </Document>
           ) : (
             <DocumentError />
@@ -165,7 +183,7 @@ export function PDFViewer({
         </div>
 
         <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full border border-border bg-white px-3 py-1 text-[11px] font-medium tabular-nums text-muted-foreground shadow-sm">
+          <span className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium tabular-nums text-muted-foreground shadow-sm">
             {page} / {numPages ?? "…"}
           </span>
         </div>
