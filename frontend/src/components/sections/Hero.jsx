@@ -7,8 +7,8 @@ import { fadeUp, staggerContainer, defaultTransition } from "@/lib/motion"
 
 export function Hero() {
   return (
-    <section id="top" className="pt-32 pb-20 sm:pt-40 sm:pb-28">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:px-6 xl:grid-cols-[26rem_1fr] xl:gap-16 lg:px-8">
+    <section id="top" className="bg-white pt-36 pb-20 sm:pt-44 sm:pb-28">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-4 sm:px-6 xl:grid-cols-[28rem_1fr] xl:gap-16 lg:px-8">
         <motion.div
           initial="hidden"
           animate="show"
@@ -18,11 +18,9 @@ export function Hero() {
           <motion.h1
             variants={fadeUp}
             transition={defaultTransition}
-            className="text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl"
+            className="text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-foreground sm:text-5xl lg:text-[3.25rem]"
           >
-            Research Smarter.
-            <br />
-            Understand Faster.
+            The AI workspace for research papers
           </motion.h1>
 
           <motion.p
@@ -30,14 +28,14 @@ export function Hero() {
             transition={defaultTransition}
             className="mt-6 max-w-md text-balance text-base leading-relaxed text-muted-foreground sm:text-lg"
           >
-            Upload research papers, ask questions with AI, compare studies, generate literature
-            reviews, and discover research gaps — all in one intelligent workspace.
+            Upload PDFs, ask questions, compare papers, generate literature reviews, and
+            discover research gaps — every answer grounded in citations back to the source.
           </motion.p>
 
           <motion.div
             variants={fadeUp}
             transition={defaultTransition}
-            className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
+            className="mt-10 flex flex-col items-start gap-3 sm:flex-row sm:items-center"
           >
             <Button size="lg" render={<Link to="/workspace" />} nativeButton={false} className="h-11 gap-2 px-6">
               Get Started

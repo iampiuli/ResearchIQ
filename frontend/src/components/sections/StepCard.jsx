@@ -7,13 +7,15 @@ export function StepCard({ number, icon: Icon, title, description }) {
       variants={fadeUp}
       transition={defaultTransition}
       whileHover={{ y: -3 }}
-      className="flex flex-1 flex-col gap-4 rounded-2xl border border-border bg-white p-6 transition-shadow hover:shadow-md"
+      className="group flex flex-1 flex-col gap-4 rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:border-gray-200 hover:shadow-md"
     >
       <div className="flex items-center justify-between">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-indigo-50">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 transition-colors duration-200 group-hover:bg-indigo-100">
           <Icon className="size-5 text-indigo-600" strokeWidth={1.5} />
         </div>
-        <span className="text-3xl font-semibold text-gray-100">{number}</span>
+        <span className="text-3xl font-semibold text-gray-100 transition-colors duration-200 group-hover:text-gray-200">
+          {number}
+        </span>
       </div>
       <div>
         <h3 className="text-base font-medium text-foreground">{title}</h3>

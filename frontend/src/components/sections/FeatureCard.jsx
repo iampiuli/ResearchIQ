@@ -9,11 +9,11 @@ export function FeatureCard({ icon: Icon, title, description, className }) {
       transition={defaultTransition}
       whileHover={{ y: -3 }}
       className={cn(
-        "group flex flex-col gap-4 rounded-2xl border border-border bg-white p-7 transition-shadow hover:shadow-md",
+        "group flex flex-col gap-4 rounded-2xl border border-border bg-white p-7 transition-all duration-200 hover:border-gray-200 hover:shadow-md",
         className
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-lg bg-indigo-50">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 transition-colors duration-200 group-hover:bg-indigo-100">
         <Icon className="size-5 text-indigo-600" strokeWidth={1.5} />
       </div>
       <div>
