@@ -1,15 +1,12 @@
 import { cn } from "@/lib/utils"
 
-export function SectionBadge({ icon: Icon, children, className }) {
+/** Small-caps section label with a leading rule — reads like a chapter marker. */
+export function SectionBadge({ children, className }) {
   return (
-    <div
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground",
-        className
-      )}
-    >
-      {Icon && <Icon className="size-3.5 text-indigo-600" strokeWidth={2.25} />}
+    <div className={cn("eyebrow inline-flex items-center gap-3", className)}>
+      <span className="h-px w-6 bg-border-strong" aria-hidden="true" />
       {children}
+      <span className="h-px w-6 bg-border-strong" aria-hidden="true" />
     </div>
   )
 }

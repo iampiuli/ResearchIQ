@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import {
   AlertCircle,
   ChevronRight,
-  Folder,
+  Library,
   Loader2,
   PanelLeftClose,
   PanelLeftOpen,
@@ -15,16 +15,16 @@ import {
   Upload,
 } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
-import { Button } from "@/components/ui/button"
 import { PaperCard } from "@/components/workspace/PaperCard"
 import { PaperDetailsDialog } from "@/components/workspace/PaperDetailsDialog"
 import { cn } from "@/lib/utils"
 
-const FOCUS_RING = "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
-
 const SIDEBAR_COLLAPSED_KEY = "researchiq.sidebar.collapsed"
 const SIDEBAR_SECTIONS_KEY = "researchiq.sidebar.sections"
 const DEFAULT_SECTIONS = { workspaces: true, papers: true }
+
+const ICON_BUTTON =
+  "focus-ring flex items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.06] hover:text-foreground active:translate-y-px"
 
 function loadSidebarCollapsed() {
   try {
@@ -69,7 +69,7 @@ function InlineNameInput({ initialValue = "", placeholder, onConfirm, onCancel }
         }
       }}
       placeholder={placeholder}
-      className="w-full rounded-lg border border-indigo-300 bg-card px-2.5 py-2 text-xs font-medium text-foreground outline-none ring-2 ring-indigo-500/15"
+      className="w-full rounded-lg border border-primary/40 bg-paper px-2.5 py-2 text-[13px] text-foreground outline-none ring-4 ring-primary/10 placeholder:text-muted-foreground/70"
     />
   )
 }
@@ -81,10 +81,7 @@ function SectionHeader({ title, expanded, onToggle, action }) {
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        className={cn(
-          "flex items-center gap-1 rounded-md py-0.5 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase outline-none transition-colors hover:text-foreground",
-          FOCUS_RING
-        )}
+        className="eyebrow focus-ring flex items-center gap-1 rounded-md py-0.5 transition-colors hover:text-foreground"
       >
         <ChevronRight className={cn("size-3 transition-transform duration-200", expanded && "rotate-90")} />
         {title}
@@ -124,36 +121,24 @@ function SidebarRail({
   onRequestSearchFocus,
 }) {
   return (
-    <div className="flex h-full w-[72px] flex-col items-center">
-      <div className="flex flex-col items-center gap-3.5 border-b border-border px-3 py-4">
-        <Link to="/" aria-label="ResearchIQ home" className={cn("rounded-lg outline-none", FOCUS_RING)}>
+    <div className="flex h-full w-[68px] flex-col items-center">
+      <div className="flex h-14 w-full items-center justify-center border-b border-sidebar-border">
+        <Link to="/" aria-label="ResearchIQ home" className="focus-ring rounded-lg">
           <Logo iconOnly />
         </Link>
-        <button
-          type="button"
-          onClick={onExpand}
-          aria-label="Expand sidebar"
-          title="Expand sidebar"
-          className={cn(
-            "flex size-8 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
-            FOCUS_RING
-          )}
-        >
-          <PanelLeftOpen className="size-4" />
-        </button>
       </div>
 
-      <div className="flex flex-col items-center gap-2 border-b border-border px-3 py-4">
+      <div className="flex flex-col items-center gap-1 px-3 py-3">
+        <button type="button" onClick={onExpand} aria-label="Expand sidebar" title="Expand sidebar" className={cn(ICON_BUTTON, "size-9")}>
+          <PanelLeftOpen className="size-4" />
+        </button>
         <button
           type="button"
           onClick={onUploadClick}
           disabled={isUploading || !hasActiveWorkspace}
           aria-label="Upload papers"
           title="Upload papers"
-          className={cn(
-            "flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
-            FOCUS_RING
-          )}
+          className={cn(ICON_BUTTON, "size-9 disabled:pointer-events-none disabled:opacity-40")}
         >
           {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
         </button>
@@ -165,46 +150,39 @@ function SidebarRail({
           }}
           aria-label="Search papers"
           title="Search papers"
-          className={cn(
-            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
-            FOCUS_RING
-          )}
+          className={cn(ICON_BUTTON, "size-9")}
         >
           <Search className="size-4" />
         </button>
       </div>
 
-      <div className="scroll-thin flex flex-1 flex-col items-center gap-2 overflow-y-auto px-3 py-4">
-        {workspaces.map((workspace) => (
-          <button
-            key={workspace.id}
-            type="button"
-            onClick={() => onSelectWorkspace(workspace)}
-            aria-label={workspace.name}
-            title={workspace.name}
-            className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-lg outline-none transition-colors duration-150 active:translate-y-px",
-              workspace.id === activeWorkspaceId
-                ? "bg-indigo-50/70 text-indigo-700"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              FOCUS_RING
-            )}
-          >
-            <Folder className="size-4" strokeWidth={2} />
-          </button>
-        ))}
+      <div className="mx-4 h-px w-6 bg-sidebar-border" />
+
+      <div className="scroll-thin flex flex-1 flex-col items-center gap-1.5 overflow-y-auto px-3 py-3">
+        {workspaces.map((workspace) => {
+          const isActive = workspace.id === activeWorkspaceId
+          return (
+            <button
+              key={workspace.id}
+              type="button"
+              onClick={() => onSelectWorkspace(workspace)}
+              aria-label={workspace.name}
+              title={workspace.name}
+              className={cn(
+                "focus-ring flex size-9 shrink-0 items-center justify-center rounded-lg font-serif text-[15px] font-medium transition-colors duration-150 active:translate-y-px",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground"
+              )}
+            >
+              {workspace.name.trim().charAt(0).toUpperCase() || "W"}
+            </button>
+          )
+        })}
       </div>
 
-      <div className="border-t border-border px-3 py-4">
-        <button
-          type="button"
-          aria-label="Settings"
-          title="Settings"
-          className={cn(
-            "flex size-9 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
-            FOCUS_RING
-          )}
-        >
+      <div className="px-3 py-3">
+        <button type="button" aria-label="Settings" title="Settings" className={cn(ICON_BUTTON, "size-9")}>
           <Settings className="size-4" strokeWidth={1.75} />
         </button>
       </div>
@@ -257,9 +235,9 @@ function SidebarContent({
   }
 
   return (
-    <div className="flex h-full w-[280px] flex-col">
-      <div className="flex items-center justify-between border-b border-border px-4 py-5">
-        <Link to="/" aria-label="ResearchIQ home" className={cn("rounded-lg outline-none", FOCUS_RING)}>
+    <div className="flex h-full w-[284px] flex-col">
+      <div className="flex h-14 shrink-0 items-center justify-between px-4">
+        <Link to="/" aria-label="ResearchIQ home" className="focus-ring rounded-lg">
           <Logo />
         </Link>
         {onCollapse && (
@@ -268,49 +246,51 @@ function SidebarContent({
             onClick={onCollapse}
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
-            className={cn(
-              "flex size-7 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground active:translate-y-px",
-              FOCUS_RING
-            )}
+            className={cn(ICON_BUTTON, "size-8")}
           >
             <PanelLeftClose className="size-4" />
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-2 border-b border-border p-4">
-        <Button
-          variant="outline"
-          className="w-full justify-center gap-2"
+      <div className="space-y-2 px-4 pt-1 pb-4">
+        <button
+          type="button"
           onClick={onUploadClick}
           disabled={isUploading || !hasActiveWorkspace}
           title={hasActiveWorkspace ? undefined : "Select or create a workspace first"}
-        >
-          {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
-          {isUploading ? "Uploading…" : "Upload Papers"}
-        </Button>
-      </div>
-
-      <div className="border-b border-border p-4">
-        <div
           className={cn(
-            "flex items-center gap-2 rounded-lg border border-border bg-muted px-2.5 py-2 transition-shadow duration-150",
-            "focus-within:border-indigo-300 focus-within:bg-card focus-within:shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/15"
+            "focus-ring flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong bg-paper/60 text-[13px] font-medium text-ink-soft transition-colors duration-150",
+            "hover:border-primary/50 hover:bg-paper hover:text-primary",
+            "disabled:pointer-events-none disabled:opacity-50"
           )}
         >
-          <Search className="size-3.5 shrink-0 text-muted-foreground/70" strokeWidth={2} />
+          {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" strokeWidth={1.75} />}
+          {isUploading ? "Uploading…" : "Add papers"}
+        </button>
+
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-lg bg-foreground/[0.045] px-2.5 py-2 transition-[background-color,box-shadow] duration-150",
+            "focus-within:bg-paper focus-within:shadow-[0_0_0_1px_var(--border-strong)]"
+          )}
+        >
+          <Search className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2} />
           <input
             ref={searchInputRef}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search papers…"
+            placeholder="Search papers"
             className="w-full bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground/80 focus:outline-none"
           />
+          <kbd className="hidden shrink-0 rounded border border-border-strong/70 px-1 font-sans text-[10px] text-muted-foreground/80 xl:block">
+            ⌘K
+          </kbd>
         </div>
       </div>
 
-      <div className="scroll-thin flex-1 overflow-y-auto p-4">
-        <div className="mb-5">
+      <div className="scroll-thin flex-1 overflow-y-auto px-3 pb-4">
+        <div className="mb-6">
           <SectionHeader
             title="Workspaces"
             expanded={sections.workspaces}
@@ -319,22 +299,20 @@ function SidebarContent({
               <button
                 type="button"
                 onClick={startCreatingWorkspace}
-                className={cn(
-                  "flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-indigo-600 outline-none transition-colors hover:bg-indigo-50",
-                  FOCUS_RING
-                )}
+                aria-label="New workspace"
+                title="New workspace"
+                className="focus-ring flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/[0.06] hover:text-foreground"
               >
-                <Plus className="size-3" />
-                New
+                <Plus className="size-3.5" />
               </button>
             }
           />
           <CollapsibleSection expanded={sections.workspaces}>
-            <div className="space-y-1 pt-3">
+            <div className="space-y-0.5 pt-2">
               {isCreatingWorkspace && (
                 <div className="px-1 pb-1">
                   <InlineNameInput
-                    placeholder="Workspace name…"
+                    placeholder="Workspace name"
                     onConfirm={(name) => {
                       onCreateWorkspace(name)
                       setIsCreatingWorkspace(false)
@@ -344,102 +322,115 @@ function SidebarContent({
                 </div>
               )}
               {workspaces.length === 0 && !isCreatingWorkspace && (
-                <p className="px-1 py-2 text-xs text-muted-foreground">No workspaces yet — create one to get started.</p>
+                <p className="px-2 py-2 text-xs leading-relaxed text-muted-foreground">
+                  No workspaces yet. Create one to start collecting papers.
+                </p>
               )}
-              {workspaces.map((workspace) => (
-                <div
-                  key={workspace.id}
-                  className={cn(
-                    "group flex items-center gap-1 rounded-lg px-1 outline-none transition-colors duration-150",
-                    workspace.id === activeWorkspaceId ? "bg-indigo-50/70" : "hover:bg-muted"
-                  )}
-                >
-                  {renamingWorkspaceId === workspace.id ? (
-                    <div className="flex-1 py-1">
-                      <InlineNameInput
-                        initialValue={workspace.name}
-                        onConfirm={(name) => {
-                          onRenameWorkspace(workspace.id, name)
-                          setRenamingWorkspaceId(null)
-                        }}
-                        onCancel={() => setRenamingWorkspaceId(null)}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onSelectWorkspace(workspace)
-                          onNavigate?.()
-                        }}
-                        className={cn(
-                          "flex min-w-0 flex-1 items-center gap-2.5 rounded-lg py-2 pl-1.5 text-left text-xs font-medium outline-none",
-                          workspace.id === activeWorkspaceId ? "text-indigo-700" : "text-muted-foreground"
-                        )}
-                      >
-                        <Folder className="size-3.5 shrink-0" strokeWidth={2} />
-                        <span className="min-w-0 flex-1 truncate">{workspace.name}</span>
-                        <span className="shrink-0 text-[10px] text-muted-foreground/70">
-                          {workspace.paperCount} paper{workspace.paperCount === 1 ? "" : "s"}
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRenamingWorkspaceId(workspace.id)}
-                        aria-label={`Rename ${workspace.name}`}
-                        className={cn(
-                          "shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 hover:bg-card hover:text-foreground",
-                          FOCUS_RING
-                        )}
-                      >
-                        <Pencil className="size-3" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              ))}
+              {workspaces.map((workspace) => {
+                const isActive = workspace.id === activeWorkspaceId
+                return (
+                  <div
+                    key={workspace.id}
+                    className={cn(
+                      "group flex items-center gap-1 rounded-lg px-1 transition-colors duration-150",
+                      isActive ? "bg-paper shadow-[0_0_0_1px_var(--border)]" : "hover:bg-foreground/[0.04]"
+                    )}
+                  >
+                    {renamingWorkspaceId === workspace.id ? (
+                      <div className="flex-1 py-1">
+                        <InlineNameInput
+                          initialValue={workspace.name}
+                          onConfirm={(name) => {
+                            onRenameWorkspace(workspace.id, name)
+                            setRenamingWorkspaceId(null)
+                          }}
+                          onCancel={() => setRenamingWorkspaceId(null)}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectWorkspace(workspace)
+                            onNavigate?.()
+                          }}
+                          className="focus-ring flex min-w-0 flex-1 items-center gap-2.5 rounded-lg py-2 pl-2 text-left"
+                        >
+                          <span
+                            className={cn(
+                              "size-1.5 shrink-0 rounded-full transition-colors",
+                              isActive ? "bg-primary" : "bg-border-strong"
+                            )}
+                            aria-hidden="true"
+                          />
+                          <span
+                            className={cn(
+                              "min-w-0 flex-1 truncate text-[13px]",
+                              isActive ? "font-medium text-foreground" : "text-ink-soft"
+                            )}
+                          >
+                            {workspace.name}
+                          </span>
+                          <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+                            {workspace.paperCount}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRenamingWorkspaceId(workspace.id)}
+                          aria-label={`Rename ${workspace.name}`}
+                          className="focus-ring shrink-0 rounded-md p-1.5 text-muted-foreground opacity-0 transition-[opacity,background-color,color] duration-150 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-foreground/[0.06] hover:text-foreground"
+                        >
+                          <Pencil className="size-3" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </CollapsibleSection>
         </div>
 
         <div>
           <SectionHeader
-            title="Paper Library"
+            title="Library"
             expanded={sections.papers}
             onToggle={() => onToggleSection("papers")}
-            action={<span className="text-[11px] text-muted-foreground">{filteredPapers.length}</span>}
+            action={<span className="pr-1 text-[11px] tabular-nums text-muted-foreground">{filteredPapers.length}</span>}
           />
           <CollapsibleSection expanded={sections.papers}>
-            <div className="space-y-2 pt-3">
+            <div className="space-y-0.5 pt-2">
               {!hasActiveWorkspace && (
-                <p className="px-1 py-2 text-xs text-muted-foreground">Select a workspace to see its papers.</p>
+                <p className="px-2 py-2 text-xs leading-relaxed text-muted-foreground">
+                  Select a workspace to see its papers.
+                </p>
               )}
               {hasActiveWorkspace && papersStatus === "loading" && (
-                <div className="flex items-center gap-2 px-1 py-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
                   <Loader2 className="size-3.5 animate-spin" />
                   Loading papers…
                 </div>
               )}
               {hasActiveWorkspace && papersStatus === "error" && (
-                <div className="space-y-2 rounded-lg bg-red-50 px-2.5 py-2 text-xs text-red-700">
+                <div className="space-y-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-xs text-destructive">
                   <p className="flex items-start gap-1.5">
                     <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
                     {papersError ?? "Failed to load papers."}
                   </p>
-                  <button
-                    type="button"
-                    onClick={onRetryPapers}
-                    className="font-medium underline underline-offset-2 hover:text-red-800"
-                  >
+                  <button type="button" onClick={onRetryPapers} className="font-medium underline underline-offset-2">
                     Retry
                   </button>
                 </div>
               )}
               {hasActiveWorkspace && papersStatus === "success" && filteredPapers.length === 0 && (
-                <p className="px-1 py-2 text-xs text-muted-foreground">
-                  {papers.length === 0 ? "No papers in this workspace yet." : "No papers match your search."}
-                </p>
+                <div className="flex flex-col items-center gap-2 px-3 py-6 text-center">
+                  <Library className="size-5 text-border-strong" strokeWidth={1.5} />
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {papers.length === 0 ? "No papers in this workspace yet." : "No papers match your search."}
+                  </p>
+                </div>
               )}
               {hasActiveWorkspace &&
                 papersStatus === "success" &&
@@ -461,13 +452,10 @@ function SidebarContent({
         </div>
       </div>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-sidebar-border p-3">
         <button
           type="button"
-          className={cn(
-            "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-sm text-muted-foreground outline-none transition-colors duration-150 hover:bg-muted hover:text-foreground",
-            FOCUS_RING
-          )}
+          className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.05] hover:text-foreground"
         >
           <Settings className="size-4" strokeWidth={1.75} />
           Settings
@@ -506,9 +494,9 @@ export function Sidebar({ open, onClose, ...contentProps }) {
   return (
     <>
       <motion.aside
-        animate={{ width: collapsed ? 72 : 280 }}
+        animate={{ width: collapsed ? 68 : 284 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="hidden lg:flex lg:shrink-0 lg:flex-col lg:overflow-hidden lg:border-r lg:border-border lg:bg-card"
+        className="hidden border-r border-sidebar-border bg-sidebar lg:flex lg:shrink-0 lg:flex-col lg:overflow-hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           {collapsed ? (
@@ -560,7 +548,7 @@ export function Sidebar({ open, onClose, ...contentProps }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+              className="fixed inset-0 z-40 bg-foreground/25 lg:hidden"
             />
             <motion.aside
               key="sidebar-drawer"
@@ -568,7 +556,7 @@ export function Sidebar({ open, onClose, ...contentProps }) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.25, ease: "easeInOut" }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col border-r border-border bg-card lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 flex w-[284px] flex-col border-r border-sidebar-border bg-sidebar lg:hidden"
             >
               <SidebarContent
                 {...contentProps}

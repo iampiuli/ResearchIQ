@@ -1,26 +1,17 @@
 import { motion } from "framer-motion"
 import { fadeUp, defaultTransition } from "@/lib/motion"
 
-export function StepCard({ number, icon: Icon, title, description }) {
+export function StepCard({ number, title, description }) {
   return (
-    <motion.div
-      variants={fadeUp}
-      transition={defaultTransition}
-      whileHover={{ y: -3 }}
-      className="group flex flex-1 flex-col gap-4 rounded-2xl border border-border bg-white p-6 transition-all duration-200 hover:border-gray-200 hover:shadow-md"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 transition-colors duration-200 group-hover:bg-indigo-100">
-          <Icon className="size-5 text-indigo-600" strokeWidth={1.5} />
-        </div>
-        <span className="text-3xl font-semibold text-gray-100 transition-colors duration-200 group-hover:text-gray-200">
+    <motion.div variants={fadeUp} transition={defaultTransition} className="relative flex flex-col">
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-border-strong bg-paper font-serif text-xl text-primary italic shadow-[var(--shadow-page)]">
           {number}
         </span>
+        <span className="h-px flex-1 border-t border-dashed border-border-strong" />
       </div>
-      <div>
-        <h3 className="text-base font-medium text-foreground">{title}</h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
-      </div>
+      <h3 className="mt-6 text-[1.3rem] leading-snug font-medium tracking-tight text-foreground">{title}</h3>
+      <p className="mt-2.5 text-[14.5px] leading-relaxed text-muted-foreground">{description}</p>
     </motion.div>
   )
 }

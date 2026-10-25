@@ -28,10 +28,9 @@ const PRIMARY_PROMPTS = [
 const SECONDARY_PROMPTS = ["Give me a literature review of these papers", "What future work do these papers suggest?"]
 
 const PROMPT_CHIP_CLASS = cn(
-  "rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-xs font-medium text-muted-foreground shadow-xs outline-none",
-  "transition-all duration-150 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-700 hover:shadow-md",
-  "active:translate-y-0 active:shadow-xs",
-  "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
+  "focus-ring rounded-full border border-border-strong/70 bg-transparent px-3.5 py-1.5 text-left text-[12.5px] text-ink-soft",
+  "transition-colors duration-150 hover:border-primary/40 hover:bg-accent hover:text-accent-foreground",
+  "active:bg-accent/70"
 )
 
 const WORKSPACES_STORAGE_KEY = "researchiq.workspaces"
@@ -475,7 +474,8 @@ export function WorkspacePage() {
     filteredPapers,
     papersStatus,
     papersError,
-    onRetryPapers: loadPapers,
+    // Wrapped so the click event isn't forwarded to loadPapers as its `signal` argument.
+    onRetryPapers: () => loadPapers(),
     workspaces: sortedWorkspaces,
     activeWorkspaceId,
     onSelectWorkspace: handleSelectWorkspace,
@@ -520,15 +520,18 @@ export function WorkspacePage() {
           <div className="flex min-h-0 flex-1">
             <div className="flex min-w-0 flex-1 flex-col">
               {!activeWorkspace ? (
-                <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-                  <span className="flex size-12 items-center justify-center rounded-2xl border border-border bg-card">
-                    <FolderPlus className="size-5 text-indigo-500" strokeWidth={1.75} />
+                <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
+                  <span className="flex size-11 items-center justify-center rounded-full border border-border-strong/70 bg-paper">
+                    <FolderPlus className="size-5 text-primary" strokeWidth={1.5} />
                   </span>
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-foreground">Create a workspace to get started</p>
-                    <p className="max-w-sm text-sm text-muted-foreground">
-                      Each workspace keeps its own papers and conversation. Use "+ New Workspace" in the
-                      sidebar to create one.
+                  <div className="space-y-2">
+                    <p className="font-serif text-2xl font-medium tracking-tight text-foreground">
+                      Begin with a workspace
+                    </p>
+                    <p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
+                      A workspace keeps a set of papers and the conversation about them together. Use the{" "}
+                      <span className="font-medium text-foreground">+</span> beside Workspaces in the sidebar to
+                      create one.
                     </p>
                   </div>
                 </div>
@@ -537,18 +540,21 @@ export function WorkspacePage() {
                   <div
                     ref={scrollRef}
                     onScroll={handleTranscriptScroll}
-                    className="scroll-thin flex-1 overflow-y-auto px-6 py-8 lg:px-10"
+                    className="scroll-thin flex-1 overflow-y-auto px-6 py-10 lg:px-10"
                   >
-                    <div className="mx-auto max-w-3xl space-y-8">
+                    <div className="mx-auto max-w-[44rem] space-y-12">
                       {messages.length === 0 && !isThinkingHere && (
-                        <div className="flex flex-col items-center gap-3 py-10 text-center">
-                          <span className="flex size-12 items-center justify-center rounded-2xl border border-border bg-card">
-                            <MessagesSquare className="size-5 text-indigo-500" strokeWidth={1.75} />
+                        <div className="flex flex-col items-center gap-5 pt-[8vh] text-center">
+                          <span className="flex size-11 items-center justify-center rounded-full border border-border-strong/70 bg-paper">
+                            <MessagesSquare className="size-5 text-primary" strokeWidth={1.5} />
                           </span>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">Ask about your papers</p>
-                            <p className="max-w-sm text-sm text-muted-foreground">
-                              Upload a paper, then ask a question to get a grounded answer with sources.
+                          <div className="space-y-2">
+                            <p className="font-serif text-[2rem] leading-tight font-medium tracking-tight text-foreground">
+                              What would you like to understand?
+                            </p>
+                            <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
+                              Add a paper, then ask a question. Every answer is grounded in your documents, with
+                              sources you can open and read.
                             </p>
                           </div>
                         </div>
@@ -560,9 +566,9 @@ export function WorkspacePage() {
                     </div>
                   </div>
 
-                  <div className="border-t border-border bg-card px-6 py-5 lg:px-10">
-                    <div className="mx-auto max-w-3xl">
-                      <div className="mb-3 flex flex-wrap items-center gap-2.5">
+                  <div className="px-6 pt-2 pb-5 lg:px-10">
+                    <div className="mx-auto max-w-[44rem]">
+                      <div className="mb-3 flex flex-wrap items-center gap-2">
                         {PRIMARY_PROMPTS.map((prompt) => (
                           <button
                             key={prompt}
@@ -578,9 +584,8 @@ export function WorkspacePage() {
                           onClick={() => setShowMorePrompts((v) => !v)}
                           aria-expanded={showMorePrompts}
                           className={cn(
-                            "flex items-center gap-1 rounded-xl border border-dashed border-border bg-transparent px-3 py-2.5 text-xs font-medium text-muted-foreground outline-none",
-                            "transition-all duration-150 hover:border-indigo-200 hover:text-indigo-700",
-                            "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
+                            "focus-ring flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[12.5px] text-muted-foreground",
+                            "transition-colors duration-150 hover:text-foreground"
                           )}
                         >
                           {showMorePrompts ? "Less" : "More"}
@@ -599,7 +604,7 @@ export function WorkspacePage() {
                             transition={{ duration: 0.2, ease: "easeInOut" }}
                             className="overflow-hidden"
                           >
-                            <div className="mb-3 flex flex-wrap gap-2.5">
+                            <div className="mb-3 flex flex-wrap gap-2">
                               {SECONDARY_PROMPTS.map((prompt) => (
                                 <button
                                   key={prompt}
@@ -615,6 +620,9 @@ export function WorkspacePage() {
                         )}
                       </AnimatePresence>
                       <ChatInput value={draft} onChange={setDraft} onSubmit={handleSend} disabled={isThinking} />
+                      <p className="mt-2.5 text-center text-[11.5px] text-muted-foreground">
+                        Answers are drawn only from the papers in this workspace. Check the sources.
+                      </p>
                     </div>
                   </div>
                 </>
@@ -654,7 +662,7 @@ export function WorkspacePage() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setSourceOpen(false)}
-                    className="fixed inset-0 z-40 bg-black/30 xl:hidden"
+                    className="fixed inset-0 z-40 bg-foreground/25 xl:hidden"
                   />
                   <motion.div
                     key="source-drawer"
@@ -662,7 +670,7 @@ export function WorkspacePage() {
                     animate={{ x: 0 }}
                     exit={{ x: "100%" }}
                     transition={{ duration: 0.25, ease: "easeInOut" }}
-                    className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-border bg-card xl:hidden"
+                    className="fixed inset-y-0 right-0 z-50 w-full max-w-[420px] border-l border-border bg-sidebar xl:hidden"
                   >
                     <PDFViewer
                       paper={activePaper}

@@ -3,28 +3,22 @@ import { GithubIcon } from "@/components/shared/icons"
 
 export function Footer() {
   return (
-    <footer id="about" className="border-t border-border bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
-          <div className="flex flex-col items-center gap-2 sm:items-start">
-            <Logo />
-            <p className="text-sm text-muted-foreground">Built by Piuli Biswas</p>
-          </div>
-
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <GithubIcon className="size-4" />
-            GitHub
-          </a>
+    <footer id="about" className="border-t border-border">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 py-10 text-center sm:flex-row sm:justify-between sm:px-8 sm:text-left">
+        <div className="flex flex-col items-center gap-2 sm:items-start">
+          <Logo />
+          <p className="text-[13px] text-muted-foreground">Built by Piuli Biswas · © 2026</p>
         </div>
 
-        <div className="mt-10 border-t border-border pt-6 text-center">
-          <p className="text-xs text-muted-foreground">© 2026 ResearchIQ</p>
-        </div>
+        <a
+          href="https://github.com/iampiuli/ResearchIQ"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="focus-ring inline-flex items-center gap-2 rounded text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <GithubIcon className="size-4" />
+          GitHub
+        </a>
       </div>
     </footer>
   )

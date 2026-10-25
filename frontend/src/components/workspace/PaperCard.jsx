@@ -1,4 +1,4 @@
-import { ExternalLink, FileText, Info, Loader2, MoreVertical, Trash2 } from "lucide-react"
+import { ExternalLink, FileText, Info, Loader2, MoreHorizontal, Trash2 } from "lucide-react"
 import { cn, formatFileSize, formatUploadedAt } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -7,80 +7,60 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const STATUS_STYLES = {
-  indexed: { dot: "bg-green-500", label: "Indexed", text: "text-green-700", bg: "bg-green-50" },
-  uploaded: { dot: "bg-green-500", label: "Indexed", text: "text-green-700", bg: "bg-green-50" },
-  processing: { dot: "bg-amber-500", label: "Processing", text: "text-amber-700", bg: "bg-amber-50" },
-}
-
-function StatusBadge({ status }) {
-  const style = STATUS_STYLES[status] ?? STATUS_STYLES.indexed
+/** A quiet status mark: nothing for indexed papers (the default), a spinner while processing. */
+function ProcessingMark({ status }) {
+  if (status !== "processing") return null
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium",
-        style.bg,
-        style.text
-      )}
-    >
-      {status === "processing" ? (
-        <Loader2 className="size-2.5 animate-spin" />
-      ) : (
-        <span className={cn("size-1.5 rounded-full", style.dot)} />
-      )}
-      {style.label}
+    <span className="inline-flex items-center gap-1 text-[11px] text-marker-foreground">
+      <Loader2 className="size-3 animate-spin" />
+      Processing
     </span>
   )
 }
 
 export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
+  const meta = [formatFileSize(paper.size), formatUploadedAt(paper.uploadedAt)].filter(Boolean).join(" · ")
+
   return (
     <div
       className={cn(
-        "group flex w-full items-start gap-1 rounded-xl border transition-colors duration-150",
-        active ? "border-indigo-200 bg-indigo-50" : "border-border bg-card hover:border-gray-300 hover:bg-muted/60 hover:shadow-sm"
+        "group relative flex w-full items-start rounded-lg transition-colors duration-150",
+        active ? "bg-paper shadow-[0_0_0_1px_var(--border)]" : "hover:bg-foreground/[0.04]"
       )}
     >
+      {active && <span className="absolute top-2.5 bottom-2.5 left-0 w-0.5 rounded-full bg-primary" aria-hidden="true" />}
+
       <button
         type="button"
         onClick={onClick}
-        className={cn(
-          "flex min-w-0 flex-1 items-start gap-3 rounded-xl p-3.5 text-left outline-none",
-          "focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-1"
-        )}
+        className="focus-ring flex min-w-0 flex-1 items-start gap-3 rounded-lg px-3 py-2.5 text-left"
       >
-        <span
-          className={cn(
-            "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border",
-            active ? "border-indigo-200 bg-card" : "border-border bg-card"
-          )}
-        >
-          <FileText className="size-4 text-indigo-600" strokeWidth={1.75} />
-        </span>
+        <FileText
+          className={cn("mt-0.5 size-4 shrink-0", active ? "text-primary" : "text-muted-foreground")}
+          strokeWidth={1.6}
+        />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm leading-snug font-medium text-foreground" title={paper.title}>
+          <p className="line-clamp-2 text-[13px] leading-snug font-medium text-foreground" title={paper.title}>
             {paper.title}
           </p>
-          <p className="mt-1 truncate text-xs text-muted-foreground">
-            {[formatUploadedAt(paper.uploadedAt), formatFileSize(paper.size)].filter(Boolean).join(" · ")}
-          </p>
-          <div className="mt-2">
-            <StatusBadge status={paper.status} />
+          <div className="mt-1 flex items-center gap-2">
+            <p className="truncate text-[11.5px] text-muted-foreground">{meta}</p>
+            <ProcessingMark status={paper.status} />
           </div>
         </div>
       </button>
 
-      <div className="shrink-0 py-3.5 pr-2">
+      <div className="shrink-0 py-2 pr-1.5">
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Paper actions"
             className={cn(
-              "flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150",
+              "focus-ring flex size-7 items-center justify-center rounded-md text-muted-foreground transition-[opacity,background-color,color] duration-150",
               "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[popup-open]:opacity-100",
-              "hover:bg-card hover:text-foreground data-[popup-open]:bg-card data-[popup-open]:text-foreground"
+              "hover:bg-foreground/[0.06] hover:text-foreground data-[popup-open]:bg-foreground/[0.06] data-[popup-open]:text-foreground"
             )}
           >
-            <MoreVertical className="size-4" />
+            <MoreHorizontal className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={onClick}>
@@ -93,7 +73,7 @@ export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={onRemove}>
               <Trash2 className="size-3.5" />
-              Delete from Workspace
+              Remove from workspace
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

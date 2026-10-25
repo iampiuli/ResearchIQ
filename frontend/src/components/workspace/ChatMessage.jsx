@@ -5,14 +5,13 @@ import remarkGfm from "remark-gfm"
 import { Check, Copy } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
 import { CitationChip } from "@/components/workspace/CitationChip"
-import { cn } from "@/lib/utils"
 
 // Quick fade + slight upward settle — not a simulated typing effect, just a
 // snappy arrival so the message doesn't feel like it's popping in.
 const ENTER = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.15, ease: "easeOut" },
+  transition: { duration: 0.2, ease: "easeOut" },
 }
 
 /** Recursively flattens a react-markdown code node's children back to plain text, for the copy button. */
@@ -41,21 +40,21 @@ function CodeBlock({ children }) {
   }
 
   return (
-    <div className="mt-4 overflow-hidden rounded-lg border border-border bg-muted/40 first:mt-0">
-      <div className="flex items-center justify-between border-b border-border bg-muted/60 px-3 py-1.5">
+    <div className="mt-5 overflow-hidden rounded-lg border border-border bg-secondary/60 font-sans first:mt-0">
+      <div className="flex items-center justify-between border-b border-border px-3 py-1.5">
         <span className="font-mono text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
           {language || "text"}
         </span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-muted-foreground outline-none transition-colors duration-150 hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+          className="focus-ring flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors duration-150 hover:bg-paper hover:text-foreground"
         >
           {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="overflow-x-auto p-3 [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-[13px] [&>code]:leading-6 [&>code]:text-foreground">
+      <pre className="overflow-x-auto p-3 [&>code]:bg-transparent [&>code]:p-0 [&>code]:font-mono [&>code]:text-[13px] [&>code]:leading-6 [&>code]:text-foreground">
         {children}
       </pre>
     </div>
@@ -63,33 +62,37 @@ function CodeBlock({ children }) {
 }
 
 const MARKDOWN_COMPONENTS = {
-  p: ({ children }) => <p className="mt-4 leading-7 text-foreground first:mt-0">{children}</p>,
+  p: ({ children }) => <p className="mt-5 first:mt-0">{children}</p>,
   h1: ({ children }) => (
-    <h1 className="mt-6 mb-2 text-lg font-semibold tracking-tight text-foreground first:mt-0">{children}</h1>
+    <h1 className="mt-9 mb-3 text-[1.55rem] leading-snug font-medium tracking-tight text-foreground first:mt-0">
+      {children}
+    </h1>
   ),
   h2: ({ children }) => (
-    <h2 className="mt-6 mb-2 text-base font-semibold tracking-tight text-foreground first:mt-0">{children}</h2>
+    <h2 className="mt-8 mb-2.5 text-[1.3rem] leading-snug font-medium tracking-tight text-foreground first:mt-0">
+      {children}
+    </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="mt-5 mb-1.5 text-[15px] font-semibold text-foreground first:mt-0">{children}</h3>
+    <h3 className="mt-7 mb-2 text-[1.1rem] leading-snug font-semibold text-foreground first:mt-0">{children}</h3>
   ),
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   del: ({ children }) => <del className="text-muted-foreground line-through">{children}</del>,
   ul: ({ children }) => (
-    <ul className="mt-4 list-disc space-y-1.5 pl-5 leading-7 text-foreground marker:text-muted-foreground/60 first:mt-0 [&_ul]:mt-1.5 [&_ol]:mt-1.5">
+    <ul className="mt-5 list-disc space-y-2 pl-6 marker:text-border-strong first:mt-0 [&_ul]:mt-2 [&_ol]:mt-2">
       {children}
     </ul>
   ),
   ol: ({ children }) => (
-    <ol className="mt-4 list-decimal space-y-1.5 pl-5 leading-7 text-foreground marker:font-medium marker:text-muted-foreground/60 first:mt-0 [&_ul]:mt-1.5 [&_ol]:mt-1.5">
+    <ol className="mt-5 list-decimal space-y-2 pl-6 marker:text-muted-foreground first:mt-0 [&_ul]:mt-2 [&_ol]:mt-2">
       {children}
     </ol>
   ),
-  li: ({ children }) => <li className="pl-0.5">{children}</li>,
-  hr: () => <hr className="my-5 border-border" />,
+  li: ({ children }) => <li className="pl-1">{children}</li>,
+  hr: () => <hr className="my-8 border-border" />,
   blockquote: ({ children }) => (
-    <blockquote className="mt-4 rounded-r-md border-l-2 border-indigo-300 bg-indigo-50/50 py-2 pr-3 pl-4 leading-7 text-muted-foreground italic first:mt-0">
+    <blockquote className="mt-5 border-l-2 border-primary/40 py-0.5 pl-5 text-muted-foreground italic first:mt-0">
       {children}
     </blockquote>
   ),
@@ -98,24 +101,28 @@ const MARKDOWN_COMPONENTS = {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-700"
+      className="text-primary underline decoration-primary/30 underline-offset-[3px] transition-colors hover:decoration-primary"
     >
       {children}
     </a>
   ),
   table: ({ children }) => (
-    <div className="mt-4 overflow-x-auto rounded-lg border border-border first:mt-0">
-      <table className="w-full border-collapse text-sm [&_tbody_tr:last-child_td]:border-b-0">{children}</table>
+    <div className="mt-5 overflow-x-auto rounded-lg border border-border bg-paper font-sans first:mt-0">
+      <table className="w-full border-collapse text-[13.5px] leading-6 [&_tbody_tr:last-child_td]:border-b-0">
+        {children}
+      </table>
     </div>
   ),
-  thead: ({ children }) => <thead className="bg-muted/60">{children}</thead>,
+  thead: ({ children }) => <thead className="bg-secondary/60">{children}</thead>,
   tbody: ({ children }) => <tbody>{children}</tbody>,
   tr: ({ children }) => <tr>{children}</tr>,
   th: ({ children }) => (
-    <th className="border-b border-border px-3 py-2 text-left font-semibold text-foreground">{children}</th>
+    <th className="eyebrow border-b border-border px-3.5 py-2.5 text-left !text-[10.5px] text-foreground">
+      {children}
+    </th>
   ),
   td: ({ children }) => (
-    <td className="border-b border-border/70 px-3 py-2 align-top text-foreground">{children}</td>
+    <td className="border-b border-border/70 px-3.5 py-2.5 align-top text-ink-soft">{children}</td>
   ),
   // react-markdown no longer tells us whether `code` is inline vs. fenced —
   // fenced code always carries a `language-xxx` className from remark, inline
@@ -124,7 +131,7 @@ const MARKDOWN_COMPONENTS = {
     if (!className) {
       return (
         <code
-          className="rounded-md border border-indigo-100/70 bg-indigo-50 px-1.5 py-[3px] font-mono text-[13px] text-indigo-700"
+          className="rounded-[5px] bg-secondary px-1.5 py-[2px] font-mono text-[0.82em] text-foreground"
           {...props}
         >
           {children}
@@ -142,10 +149,19 @@ const MARKDOWN_COMPONENTS = {
 
 function MessageMarkdown({ content }) {
   return (
-    <div className="text-[15px]">
+    <div className="font-serif text-[1.0625rem] leading-[1.8] text-ink-soft">
       <ReactMarkdown components={MARKDOWN_COMPONENTS} remarkPlugins={[remarkGfm]}>
         {content}
       </ReactMarkdown>
+    </div>
+  )
+}
+
+function AssistantLabel() {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <Logo iconOnly className="size-5" />
+      <span className="eyebrow">ResearchIQ</span>
     </div>
   )
 }
@@ -156,7 +172,7 @@ export function ChatMessage({ message, onCitationClick }) {
   if (isUser) {
     return (
       <motion.div {...ENTER} className="flex justify-end">
-        <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-indigo-600 px-4 py-3 text-[15px] leading-relaxed text-white">
+        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-secondary px-4 py-3 text-[15px] leading-relaxed text-foreground">
           {message.content}
         </div>
       </motion.div>
@@ -164,26 +180,31 @@ export function ChatMessage({ message, onCitationClick }) {
   }
 
   return (
-    <motion.div {...ENTER} className="flex items-start gap-3.5">
-      <Logo iconOnly className="mt-0.5 shrink-0" />
+    <motion.div {...ENTER}>
+      <AssistantLabel />
 
-      <div className="min-w-0 max-w-[85%] pt-1">
+      <div className="min-w-0">
         {message.isError ? (
-          <p className="text-[15px] leading-7 text-red-600">{message.content}</p>
+          <p className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+            {message.content}
+          </p>
         ) : (
           <MessageMarkdown content={message.content} />
         )}
 
         {message.citations?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {message.citations.map((citation) => (
-              <CitationChip
-                key={`${citation.paperId}-${citation.page}`}
-                title={citation.paperTitle}
-                page={citation.page}
-                onClick={() => onCitationClick?.(citation)}
-              />
-            ))}
+          <div className="mt-6 border-t border-border pt-4">
+            <p className="eyebrow mb-2.5">Sources</p>
+            <div className="flex flex-wrap gap-2">
+              {message.citations.map((citation) => (
+                <CitationChip
+                  key={`${citation.paperId}-${citation.page}`}
+                  title={citation.paperTitle}
+                  page={citation.page}
+                  onClick={() => onCitationClick?.(citation)}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -209,22 +230,27 @@ export function TypingIndicator() {
   }, [])
 
   return (
-    <motion.div {...ENTER} className="flex items-start gap-3.5">
-      <Logo iconOnly className="mt-0.5 shrink-0" />
-      <div className="flex items-center gap-2.5 rounded-2xl rounded-tl-sm border border-border bg-card px-4 py-3.5">
-        <motion.span
-          className="size-2 shrink-0 rounded-full bg-indigo-500"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-        />
+    <motion.div {...ENTER}>
+      <AssistantLabel />
+      <div className="flex items-center gap-3">
+        <span className="flex items-center gap-1" aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="size-1.5 rounded-full bg-primary/60"
+              animate={{ opacity: [0.25, 1, 0.25] }}
+              transition={{ duration: 1.3, repeat: Infinity, ease: "easeInOut", delay: i * 0.18 }}
+            />
+          ))}
+        </span>
         <AnimatePresence mode="wait">
           <motion.span
             key={phraseIndex}
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 3 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
+            exit={{ opacity: 0, y: -3 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className={cn("text-sm text-muted-foreground")}
+            className="font-serif text-[15px] text-muted-foreground italic"
           >
             {THINKING_PHRASES[phraseIndex]}
           </motion.span>

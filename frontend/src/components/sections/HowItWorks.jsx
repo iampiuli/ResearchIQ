@@ -1,5 +1,4 @@
 import { motion } from "framer-motion"
-import { MessageCircleQuestion, Quote, Share2, Upload } from "lucide-react"
 import { SectionBadge } from "@/components/shared/SectionBadge"
 import { Reveal } from "@/components/shared/Reveal"
 import { StepCard } from "@/components/sections/StepCard"
@@ -7,46 +6,39 @@ import { staggerContainer, viewportOnce } from "@/lib/motion"
 
 const STEPS = [
   {
-    number: "01",
-    icon: Upload,
-    title: "Upload Papers",
-    description:
-      "Drag in PDFs from your desktop or reference manager. ResearchIQ parses text, figures, and citations automatically.",
+    number: "i.",
+    title: "Gather",
+    description: "Create a workspace and add your PDFs. They are read and indexed in the background.",
   },
   {
-    number: "02",
-    icon: MessageCircleQuestion,
-    title: "Ask Questions",
-    description:
-      "Chat with your papers like you would a colleague — summarize sections, compare findings, or dig into methodology.",
+    number: "ii.",
+    title: "Ask",
+    description: "Question your papers like a colleague — summarise, compare, or dig into a single method.",
   },
   {
-    number: "03",
-    icon: Quote,
-    title: "Get Cited Answers",
-    description:
-      "Every answer links back to the exact page and passage it came from, so you can verify and cite with confidence.",
+    number: "iii.",
+    title: "Verify",
+    description: "Each answer lists its sources. Open one and the PDF jumps to the page that was cited.",
   },
   {
-    number: "04",
-    icon: Share2,
-    title: "Export & Share",
-    description:
-      "Turn your findings into a polished literature review or citation list, ready to export or share with your team.",
+    number: "iv.",
+    title: "Build",
+    description: "Carry the thread forward: follow-up questions, a literature overview, the gaps worth pursuing.",
   },
 ]
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="bg-white py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <section id="how-it-works" className="relative overflow-hidden border-y border-border bg-sidebar/60 py-24 sm:py-32">
+      <div aria-hidden="true" className="bg-dots pointer-events-none absolute inset-0 opacity-40" />
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <SectionBadge>How it Works</SectionBadge>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            From PDFs to answers in four steps
+          <SectionBadge>How it works</SectionBadge>
+          <h2 className="mt-6 text-4xl leading-[1.1] font-medium tracking-[-0.02em] text-balance sm:text-5xl">
+            From a folder of PDFs to a clear answer
           </h2>
-          <p className="mt-4 text-balance text-muted-foreground">
-            No complicated setup — bring your papers and start asking questions right away.
+          <p className="mx-auto mt-5 max-w-xl text-balance text-muted-foreground">
+            No setup to speak of. Bring your papers and start asking.
           </p>
         </Reveal>
 
@@ -54,8 +46,8 @@ export function HowItWorks() {
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
-          variants={staggerContainer(0.15)}
-          className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          variants={staggerContainer(0.12)}
+          className="mt-20 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4"
         >
           {STEPS.map((step) => (
             <StepCard key={step.number} {...step} />

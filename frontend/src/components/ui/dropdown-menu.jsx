@@ -15,7 +15,8 @@ function DropdownMenuContent({ className, children, side = "bottom", align = "en
       <Menu.Positioner side={side} align={align} sideOffset={sideOffset} className="z-50">
         <Menu.Popup
           className={cn(
-            "min-w-[11rem] rounded-lg border border-border bg-card p-1 shadow-md outline-none",
+            "min-w-[11rem] rounded-xl border border-border-strong/70 bg-paper p-1 outline-none",
+            "shadow-[var(--shadow-float)]",
             "origin-[var(--transform-origin)] transition-[transform,opacity] duration-100",
             "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
             "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
@@ -34,9 +35,9 @@ function DropdownMenuItem({ className, variant = "default", ...props }) {
   return (
     <Menu.Item
       className={cn(
-        "flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm outline-none transition-colors duration-100",
-        "data-[highlighted]:bg-muted",
-        variant === "destructive" ? "text-red-600 data-[highlighted]:bg-red-50" : "text-foreground",
+        "flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] outline-none transition-colors duration-100",
+        "data-[highlighted]:bg-foreground/[0.05]",
+        variant === "destructive" ? "text-destructive data-[highlighted]:bg-destructive/10" : "text-foreground",
         className
       )}
       {...props}

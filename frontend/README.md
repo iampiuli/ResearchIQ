@@ -1,16 +1,39 @@
-# React + Vite
+# ResearchIQ Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The React single-page app for ResearchIQ: a landing page and the research workspace (paper library, grounded chat, PDF reader).
 
-Currently, two official plugins are available:
+**Stack:** React 19 · Vite 8 · Tailwind CSS v4 · Framer Motion · react-router · react-pdf · react-markdown · Base UI · Oxlint (plain JavaScript).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Run
 
-## React Compiler
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # production build → dist/
+npm run preview   # serve the production build
+npm run lint      # oxlint
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The backend must be running for papers and chat to work (default `http://localhost:8000`). Override with a `frontend/.env`:
 
-## Expanding the Oxlint configuration
+```
+VITE_API_BASE_URL=http://localhost:8000
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+The backend must allow this app's origin in `ALLOWED_ORIGINS` (`http://localhost:5173`).
+
+## Where things are
+
+```
+src/
+  pages/        LandingPage, WorkspacePage (all app state lives here)
+  components/   layout/, sections/ (landing), workspace/ (app), shared/, ui/
+  lib/          api.js (backend client), utils.js, motion.js
+  index.css     Design tokens, fonts, base styles, utilities
+```
+
+## Learn more
+
+- [Frontend guide](../docs/FRONTEND.md): structure, state, `localStorage` keys, conventions
+- [Design system](../docs/DESIGN_SYSTEM.md): colors, typography, components. **Use tokens, never raw colors.**
+- [Getting started](../docs/GETTING_STARTED.md) · [Project README](../README.md)

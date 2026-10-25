@@ -48,12 +48,14 @@ backend/
 
 ```bash
 cd backend
-python -m venv venv
+py -3.11 -m venv venv        # Python 3.11 recommended
 venv\Scripts\activate        # Windows
 pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and set `GOOGLE_API_KEY` to a valid [Gemini API key](https://ai.google.dev/).
+Copy `.env.example` to `.env`, set `GOOGLE_API_KEY` to a valid [Gemini API key](https://ai.google.dev/), and make sure `ALLOWED_ORIGINS` includes your frontend (`http://localhost:5173` for Vite). Always run the server **from the activated venv**; the global Python usually lacks the dependencies.
+
+Full guide and troubleshooting: [../docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md).
 
 ## Running
 
@@ -95,3 +97,11 @@ See `.env.example` for the full list. Notable ones:
 | `MIN_SIMILARITY_THRESHOLD` | Minimum cosine similarity for factual retrieval to keep a chunk |
 | `SYNTHESIS_CHUNKS_PER_PAPER` / `SYNTHESIS_MAX_TOTAL_CHUNKS` | Bounds on per-paper representative retrieval |
 | `MAX_UPLOAD_SIZE_MB` | Upload size limit per file |
+
+## Scripts
+
+`scripts/reset_dev.py` (wipe local uploads + vector store) and `scripts/backfill_original_filenames.py` (one-time metadata migration). Both are manual-only; see [../docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md#scripts-backendscripts).
+
+## More documentation
+
+[Architecture](../docs/ARCHITECTURE.md) · [API reference](../docs/API.md) · [Configuration](../docs/CONFIGURATION.md) · [Development & testing](../docs/DEVELOPMENT.md) · [Known issues](../docs/ROADMAP.md)

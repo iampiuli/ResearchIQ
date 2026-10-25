@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { AlertCircle, ChevronLeft, ChevronRight, FileWarning, Minus, Plus, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileWarning, Highlighter, Minus, Plus, X } from "lucide-react"
 import { Document, Page, pdfjs } from "react-pdf"
 import "react-pdf/dist/Page/AnnotationLayer.css"
 import "react-pdf/dist/Page/TextLayer.css"
@@ -13,28 +13,12 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 function ZoomControls({ zoom, onZoomIn, onZoomOut }) {
   return (
-    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="rounded-none"
-        onClick={onZoomOut}
-        disabled={zoom <= 50}
-        aria-label="Zoom out"
-      >
+    <div className="inline-flex items-center gap-0.5">
+      <Button variant="ghost" size="icon-sm" onClick={onZoomOut} disabled={zoom <= 50} aria-label="Zoom out">
         <Minus className="size-3.5" />
       </Button>
-      <span className="w-11 border-x border-border text-center text-xs tabular-nums text-muted-foreground">
-        {zoom}%
-      </span>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="rounded-none"
-        onClick={onZoomIn}
-        disabled={zoom >= 200}
-        aria-label="Zoom in"
-      >
+      <span className="w-10 text-center text-xs tabular-nums text-muted-foreground">{zoom}%</span>
+      <Button variant="ghost" size="icon-sm" onClick={onZoomIn} disabled={zoom >= 200} aria-label="Zoom in">
         <Plus className="size-3.5" />
       </Button>
     </div>
@@ -43,24 +27,16 @@ function ZoomControls({ zoom, onZoomIn, onZoomOut }) {
 
 function PageControls({ page, totalPages, onPrevPage, onNextPage }) {
   return (
-    <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-card shadow-xs">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="rounded-none"
-        onClick={onPrevPage}
-        disabled={page <= 1}
-        aria-label="Previous page"
-      >
+    <div className="inline-flex items-center gap-0.5">
+      <Button variant="ghost" size="icon-sm" onClick={onPrevPage} disabled={page <= 1} aria-label="Previous page">
         <ChevronLeft className="size-3.5" />
       </Button>
-      <span className="border-x border-border px-2.5 text-xs tabular-nums text-muted-foreground">
-        Page {page} of {totalPages ?? "…"}
+      <span className="min-w-16 text-center text-xs tabular-nums text-muted-foreground">
+        {page} <span className="text-border-strong">/</span> {totalPages ?? "…"}
       </span>
       <Button
         variant="ghost"
         size="icon-sm"
-        className="rounded-none"
         onClick={onNextPage}
         disabled={!totalPages || page >= totalPages}
         aria-label="Next page"
@@ -74,15 +50,15 @@ function PageControls({ page, totalPages, onPrevPage, onNextPage }) {
 /** Page-shaped shimmer standing in for a PDF page while it loads or re-renders. */
 function PageSkeleton() {
   return (
-    <div className="mx-auto flex aspect-[8.5/11] w-[280px] animate-pulse flex-col gap-3 rounded-sm border border-border bg-card p-6 shadow-sm sm:w-[340px]">
-      <div className="h-3 w-2/3 rounded bg-muted" />
-      <div className="mt-3 h-2 w-full rounded bg-muted" />
-      <div className="h-2 w-full rounded bg-muted" />
-      <div className="h-2 w-5/6 rounded bg-muted" />
-      <div className="mt-4 h-2 w-full rounded bg-muted" />
-      <div className="h-2 w-full rounded bg-muted" />
-      <div className="h-2 w-3/4 rounded bg-muted" />
-      <div className="mt-4 h-28 w-full rounded bg-muted" />
+    <div className="mx-auto flex aspect-[8.5/11] w-[280px] animate-pulse flex-col gap-3 rounded-sm bg-paper p-6 shadow-[var(--shadow-page)] sm:w-[340px]">
+      <div className="h-3 w-2/3 rounded bg-secondary" />
+      <div className="mt-3 h-2 w-full rounded bg-secondary" />
+      <div className="h-2 w-full rounded bg-secondary" />
+      <div className="h-2 w-5/6 rounded bg-secondary" />
+      <div className="mt-4 h-2 w-full rounded bg-secondary" />
+      <div className="h-2 w-full rounded bg-secondary" />
+      <div className="h-2 w-3/4 rounded bg-secondary" />
+      <div className="mt-4 h-28 w-full rounded bg-secondary" />
     </div>
   )
 }
@@ -90,9 +66,9 @@ function PageSkeleton() {
 function DocumentError() {
   return (
     <div className="flex flex-col items-center gap-2 py-16 text-center text-sm text-muted-foreground">
-      <FileWarning className="size-6 text-red-400" />
-      <p className="font-medium text-foreground">Couldn't load this PDF.</p>
-      <p className="max-w-[220px] text-xs">The file may be missing or the server may be unreachable.</p>
+      <FileWarning className="size-6 text-destructive/70" strokeWidth={1.5} />
+      <p className="font-serif text-base text-foreground">Couldn't load this PDF.</p>
+      <p className="max-w-[220px] text-xs leading-relaxed">The file may be missing or the server may be unreachable.</p>
     </div>
   )
 }
@@ -117,35 +93,45 @@ export function PDFViewer({
 
   const fileProp = useMemo(() => (paper?.fileUrl ? { url: paper.fileUrl } : null), [paper?.fileUrl])
 
-  if (!paper) return null
+  if (!paper) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 bg-sidebar px-8 text-center">
+        <p className="font-serif text-lg text-foreground">Nothing open</p>
+        <p className="max-w-[220px] text-xs leading-relaxed text-muted-foreground">
+          Select a paper or click a source under an answer to read it here.
+        </p>
+      </div>
+    )
+  }
 
   const subtitle = [paper.authors, paper.journal, paper.year].filter(Boolean).join(" · ")
 
   return (
-    <div className="flex h-full flex-col bg-card">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3.5">
+    <div className="flex h-full flex-col bg-sidebar">
+      <div className="flex items-start justify-between gap-2 border-b border-border px-5 py-3.5">
         <div className="min-w-0">
-          <p className="truncate text-sm leading-snug font-semibold text-foreground" title={paper.title}>
+          <p className="eyebrow">Reading</p>
+          <p className="mt-1 truncate font-serif text-[15px] leading-snug text-foreground" title={paper.title}>
             {paper.title}
           </p>
           {subtitle && <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>}
         </div>
         {onClose && (
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={onClose} aria-label="Close preview">
+          <Button variant="ghost" size="icon" className="-mt-1 -mr-2 shrink-0" onClick={onClose} aria-label="Close reader">
             <X className="size-4" />
           </Button>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 py-2.5">
-        <ZoomControls zoom={zoom} onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5">
         <PageControls page={page} totalPages={numPages} onPrevPage={onPrevPage} onNextPage={onNextPage} />
+        <ZoomControls zoom={zoom} onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
       </div>
 
-      <div className="scroll-thin relative flex-1 overflow-auto bg-gray-50 p-6">
+      <div className="scroll-thin relative flex-1 overflow-auto p-6">
         {highlightedPage != null && highlightedPage === page && (
-          <div className="mx-auto mb-3 flex max-w-fit items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
-            <AlertCircle className="size-3" />
+          <div className="mx-auto mb-4 flex max-w-fit items-center gap-1.5 rounded-full bg-marker px-3 py-1 text-[11px] font-medium text-marker-foreground">
+            <Highlighter className="size-3" />
             Cited in answer
           </div>
         )}
@@ -172,7 +158,11 @@ export function PDFViewer({
                     scale={zoom / 100}
                     loading={<PageSkeleton />}
                     error={<DocumentError />}
-                    className="shadow-sm"
+                    className={
+                      highlightedPage != null && highlightedPage === page
+                        ? "shadow-[0_0_0_3px_var(--marker),var(--shadow-page)]"
+                        : "shadow-[var(--shadow-page)]"
+                    }
                   />
                 </motion.div>
               </AnimatePresence>
@@ -180,12 +170,6 @@ export function PDFViewer({
           ) : (
             <DocumentError />
           )}
-        </div>
-
-        <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2">
-          <span className="rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium tabular-nums text-muted-foreground shadow-sm">
-            {page} / {numPages ?? "…"}
-          </span>
         </div>
       </div>
     </div>
