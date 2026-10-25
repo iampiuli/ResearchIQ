@@ -5,6 +5,7 @@ All notable changes to this project. Format loosely follows [Keep a Changelog](h
 ## [Unreleased]
 
 ### Added
+- **Delete papers:** `DELETE /papers/{id}` removes a paper's PDF, metadata and vectors; the sidebar menu has a new "Delete permanently" action with a confirmation dialog, separate from "Remove from workspace".
 - **Page-level citations:** PDFs are now indexed per page, chat sources carry `page` (best-matching chunk) and `pages`, and citation chips link to the cited page in the reader. Papers uploaded before this change have no page data until re-uploaded.
 - Backend test suite (pytest, 27 tests) that runs against temporary storage with fake embeddings and a stubbed Gemini, and a GitHub Actions workflow running backend tests plus frontend lint and build.
 - Full project documentation under `docs/` plus `CONTRIBUTING.md`, `SECURITY.md` and this changelog.

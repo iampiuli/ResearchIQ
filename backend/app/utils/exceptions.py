@@ -54,6 +54,13 @@ class QuotaExceededError(LLMError):
         ResearchIQException.__init__(self, message, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
+class PaperNotFoundError(ResearchIQException):
+    """Raised when a paper id doesn't match any uploaded paper."""
+
+    def __init__(self, message: str = "Paper not found."):
+        super().__init__(message, status.HTTP_404_NOT_FOUND)
+
+
 class InvalidFileError(ResearchIQException):
     """Raised when an uploaded file is missing, empty, or otherwise invalid."""
 

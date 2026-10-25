@@ -9,6 +9,7 @@ Base URL (local): `http://localhost:8000`. Interactive Swagger UI: `/docs`; ReDo
 | GET | `/health` | Liveness check |
 | POST | `/upload` | Upload one or more PDFs |
 | GET | `/papers` | List uploaded papers |
+| DELETE | `/papers/{id}` | Permanently delete a paper |
 | POST | `/chat` | Ask a question; get a grounded answer |
 | POST | `/search` | Raw semantic search (no LLM) |
 | GET | `/files/{filename}` | Download/view a stored PDF |
@@ -78,6 +79,17 @@ Returns every PDF in the uploads folder, newest first.
 ```
 
 `filename` is the stored UUID name (use it in `/files/…`); `original_filename` is what the user uploaded.
+
+---
+
+### `DELETE /papers/{id}`
+
+Permanently deletes a paper: its vectors in ChromaDB, its PDF and its metadata sidecar. Returns `204 No Content`.
+
+- `404` (`PaperNotFoundError`) if the id isn't a UUID or matches no paper.
+- Vectors are removed first, so a failure there leaves the paper fully intact and the call can be retried.
+- Uploading the same file afterwards indexes it fresh (it is no longer treated as a duplicate).
+- Workspaces live in the browser, so the frontend removes the id from every workspace itself.
 
 ---
 

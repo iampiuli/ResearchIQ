@@ -47,6 +47,12 @@ export function fileUrlFor(storedFilename) {
   return `${API_BASE_URL}/files/${storedFilename}`
 }
 
+/** DELETE /papers/:id — permanently removes the PDF, its metadata and its vectors (204 on success). */
+export async function deletePaper(paperId) {
+  const response = await fetch(`${API_BASE_URL}/papers/${encodeURIComponent(paperId)}`, { method: "DELETE" })
+  if (!response.ok) throw new ApiError(await parseErrorMessage(response), response.status)
+}
+
 /** GET /papers — list of previously uploaded papers. */
 export async function fetchPapers(signal) {
   const response = await fetch(`${API_BASE_URL}/papers`, { signal })

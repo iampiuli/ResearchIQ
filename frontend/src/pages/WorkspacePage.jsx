@@ -9,7 +9,7 @@ import { ChatInput } from "@/components/workspace/ChatInput"
 import { PDFViewer } from "@/components/workspace/PDFViewer"
 import { Toast } from "@/components/shared/Toast"
 import { cn, formatRelativeTime } from "@/lib/utils"
-import { fetchPapers, fileUrlFor, sendChatMessage, uploadPapers } from "@/lib/api"
+import { deletePaper, fetchPapers, fileUrlFor, sendChatMessage, uploadPapers } from "@/lib/api"
 
 // Each of these deliberately contains a phrase intent_service.py recognizes
 // as a synthesis-style query, so it automatically pulls representative
@@ -418,6 +418,33 @@ export function WorkspacePage() {
     if (activePaperId === paperId) setActivePaperId(null)
   }
 
+  /** Permanently deletes a paper on the server, then drops it from the library and every workspace. */
+  async function handleDeletePaper(paperId) {
+    try {
+      await deletePaper(paperId)
+    } catch (err) {
+      // A 404 means it's already gone server-side — treat that as success so the UI catches up.
+      if (err.status !== 404) {
+        setUploadFeedback({ type: "error", message: err.message || "Could not delete the paper." })
+        return
+      }
+    }
+    setPapers((prev) => prev.filter((paper) => paper.id !== paperId))
+    setWorkspaces((prev) =>
+      prev.map((workspace) =>
+        workspace.attachedPaperIds.includes(paperId)
+          ? {
+              ...workspace,
+              attachedPaperIds: workspace.attachedPaperIds.filter((id) => id !== paperId),
+              activePaperId: workspace.activePaperId === paperId ? null : workspace.activePaperId,
+            }
+          : workspace
+      )
+    )
+    if (activePaperId === paperId) setActivePaperId(null)
+    setUploadFeedback({ type: "success", message: "Paper deleted." })
+  }
+
   function handleUploadClick() {
     if (!activeWorkspace) return
     fileInputRef.current?.click()
@@ -487,6 +514,7 @@ export function WorkspacePage() {
     activePaperId,
     onSelectPaper: handleSelectPaper,
     onRemovePaper: handleRemovePaperFromWorkspace,
+    onDeletePaper: handleDeletePaper,
     searchQuery,
     onSearchChange: setSearchQuery,
     onUploadClick: handleUploadClick,
