@@ -28,6 +28,21 @@ class ChunkService:
         )
         return splitter.split_text(text)
 
+    def split_pages(
+        self, pages: list[tuple[int, str]], chunk_size: int = 1000, chunk_overlap: int = 200
+    ) -> list[tuple[str, int]]:
+        """Split each page separately and return (chunk_text, page_number) pairs.
+
+        Chunking per page (rather than over the whole document) means a chunk
+        never straddles a page boundary, so every chunk has exactly one page
+        to cite. Pages with no text (e.g. scanned images) yield no chunks.
+        """
+        return [
+            (chunk, page_number)
+            for page_number, page_text in pages
+            for chunk in self.split_text(page_text, chunk_size, chunk_overlap)
+        ]
+
     def store_chunks(self, paper_id: str, chunks: list[str]) -> None:
         """Hold a paper's chunks in memory for the lifetime of the process."""
         self._chunks_by_paper_id[paper_id] = chunks

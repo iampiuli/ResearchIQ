@@ -6,7 +6,7 @@ Honest status of the project as of **October 2026** (version 0.1.0, MVP complete
 
 | # | Issue | Impact | Suggested fix |
 |---|---|---|---|
-| 1 | **Citations have no page numbers.** `/chat` returns the source paper only; chunks aren't tagged with pages, so the citation chip's `p.N` and the reader's "jump to cited page" never activate. | Core promise ("exact page") isn't fully delivered | Record page per chunk at index time (split per page, or track offsets); store `page` in Chroma metadata; return `page` in `ChatSource`. Needs re-indexing of existing papers. |
+| 1 | **Papers uploaded before page tracking have no page numbers.** New uploads are indexed per page and cite the page; older papers cite the paper only. | Older papers don't jump to a page | Re-upload them (or run `scripts/reset_dev.py` and upload again). |
 | 2 | **Dead in-memory stores.** `chunk_service.store_chunks` and `embedding_service.embed_and_store` keep every paper's chunks/embeddings in process memory, but nothing reads them (`get_chunks`/`get_embeddings` are unused). | Memory grows with each upload until restart | Remove the in-memory dictionaries. |
 | 3 | **Chroma telemetry error spam** (`capture() takes 1 positional argument`) in logs. | Noise only | Upgrade chromadb or pin a compatible `posthog`. |
 | 4 | `backend/server.log` is committed to git. | Repo clutter, may leak local info | `git rm --cached` and add to `.gitignore`. |
@@ -29,8 +29,8 @@ Honest status of the project as of **October 2026** (version 0.1.0, MVP complete
 
 ## Next steps (suggested priority)
 
-1. **Page-level citations** (issue 1): completes the product's central feature.
-2. **Automated tests**: API tests with temp storage; frontend component tests; CI running build + lint + tests.
+1. ~~Page-level citations~~: done for new uploads (see [CHANGELOG](../CHANGELOG.md)).
+2. **Automated tests**: backend API tests and CI are in place; frontend component tests are still missing.
 3. **Cleanup** (issues 2–6): small, low-risk wins.
 4. **Real deletion**: `DELETE /papers/{id}` removing the PDF, sidecar and vectors.
 5. **Auth + database**: users, server-side workspaces, per-user paper ownership. Unblocks safe deployment.

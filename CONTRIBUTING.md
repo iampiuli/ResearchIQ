@@ -12,7 +12,7 @@ Follow [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md), then read [docs/DEVEL
 2. Make focused changes. Keep unrelated refactors out of the same PR.
 3. Verify before opening a PR:
    - `cd frontend && npm run build && npm run lint`
-   - Backend: smoke-test `/health`, `/upload`, `/chat` **using temporary storage** (see [Test in isolation](docs/DEVELOPMENT.md#test-in-isolation-never-use-your-real-data)).
+   - Backend: `cd backend && pytest`. It uses temporary storage and fakes, so it never touches your real data (see [Testing](docs/DEVELOPMENT.md#testing)). For manual checks, use [temporary storage](docs/DEVELOPMENT.md#test-in-isolation-never-use-your-real-data).
 4. Update the relevant docs when behavior changes (API shape, env vars, UI conventions) and add a line to [CHANGELOG.md](CHANGELOG.md).
 5. Open a PR describing *what* changed and *why*, and how you tested it.
 

@@ -31,10 +31,14 @@ Useful URLs: app <http://localhost:5173> · API docs <http://localhost:8000/docs
 
 ## Testing
 
-There is **no automated test suite yet** (see [Roadmap](ROADMAP.md)). Until there is one, verify changes manually:
+CI (`.github/workflows/ci.yml`) runs the backend tests and the frontend lint and build on every push to `main` and every pull request. Run the same checks locally before you push:
 
-1. `npm run build` and `npm run lint` in `frontend/` must pass (one known lint warning in `ui/button.jsx` about exporting `buttonVariants`).
-2. Backend smoke test: `/health`, then upload a small PDF, then `/chat`.
+1. **Backend tests:** from `backend/`, with the venv active, `pip install -r requirements-dev.txt` once, then `pytest`.
+   - The suite covers upload, papers, chat (including page citations and workspace scoping), search and the services.
+   - It needs no model download, network or API key: the embedding model and Gemini are replaced with deterministic fakes in `tests/conftest.py`.
+   - It always uses temporary storage, and a fixture fails any test that would touch the real `app/uploads` or `chroma_store`.
+2. **Frontend:** `npm run build` and `npm run lint` in `frontend/` must pass (one known lint warning in `ui/button.jsx` about exporting `buttonVariants`).
+3. There are no frontend component tests yet (see [Roadmap](ROADMAP.md)).
 
 ### Test in isolation: never use your real data
 

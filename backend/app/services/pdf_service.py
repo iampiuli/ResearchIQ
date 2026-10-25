@@ -16,11 +16,13 @@ logger = get_logger(__name__)
 class PDFService:
     """Handles PDF parsing and text extraction."""
 
-    def extract_text(self, file_path: str) -> tuple[str, int]:
+    def extract_pages(self, file_path: str) -> tuple[list[tuple[int, str]], int]:
         """
-        Extract raw text and page count from a PDF file.
+        Extract per-page text and the page count from a PDF file.
 
-        Returns a (text, page_count) tuple. The whole document is opened
+        Returns ([(page_number, text), ...], page_count) with 1-based page
+        numbers, so downstream chunks can be tied back to the page they came
+        from. The whole document is opened
         once so both values come from the same fitz.Document. The file is
         read into memory and handed to fitz as a stream rather than a path
         — opening by path leaves fitz holding its own OS-level file handle,
@@ -31,13 +33,13 @@ class PDFService:
             with open(file_path, "rb") as f:
                 data = f.read()
             with fitz.open(stream=data, filetype="pdf") as doc:
-                text = "".join(page.get_text() for page in doc)
+                pages = [(index, page.get_text()) for index, page in enumerate(doc, start=1)]
                 page_count = doc.page_count
         except Exception as exc:
             logger.error(f"Failed to extract text from '{file_path}': {exc}")
             raise PDFProcessingError(f"Could not read PDF content: {exc}") from exc
 
-        return text, page_count
+        return pages, page_count
 
     def extract_metadata(self, file_path: str) -> dict:
         """

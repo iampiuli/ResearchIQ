@@ -353,6 +353,9 @@ export function WorkspacePage() {
       const data = await sendChatMessage(content, paperIds)
       const citations = (data.sources ?? []).map((source) => ({
         paperId: source.paper_id,
+        // Page of the best-matching chunk; null for papers indexed before
+        // page tracking, which just opens the paper without jumping.
+        page: source.page ?? null,
         // The backend now resolves a human-readable name itself
         // (original_filename), so this never depends on the papers list
         // having loaded — that lookup is kept only as a secondary fallback,

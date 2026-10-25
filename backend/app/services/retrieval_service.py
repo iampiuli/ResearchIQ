@@ -50,6 +50,8 @@ def _chunks_from_query_result(results: dict, min_similarity: float | None = None
             "chunk_id": meta.get("chunk_id"),
             "similarity_score": 1 - distance,
             "paper_id": meta.get("paper_id"),
+            # None for chunks indexed before page tracking existed.
+            "page": meta.get("page"),
         }
         for text, meta, distance in zip(documents, metadatas, distances)
         if min_similarity is None or (1 - distance) >= min_similarity
