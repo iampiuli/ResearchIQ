@@ -7,11 +7,7 @@ Honest status of the project as of **October 2026** (version 0.1.0, MVP complete
 | # | Issue | Impact | Suggested fix |
 |---|---|---|---|
 | 1 | **Papers uploaded before page tracking have no page numbers.** New uploads are indexed per page and cite the page; older papers cite the paper only. | Older papers don't jump to a page | Re-upload them (or run `scripts/reset_dev.py` and upload again). |
-| 2 | **Dead in-memory stores.** `chunk_service.store_chunks` and `embedding_service.embed_and_store` keep every paper's chunks/embeddings in process memory, but nothing reads them (`get_chunks`/`get_embeddings` are unused). | Memory grows with each upload until restart | Remove the in-memory dictionaries. |
 | 3 | **Chroma telemetry error spam** (`capture() takes 1 positional argument`) in logs. | Noise only | Upgrade chromadb or pin a compatible `posthog`. |
-| 4 | `backend/server.log` is committed to git. | Repo clutter, may leak local info | `git rm --cached` and add to `.gitignore`. |
-| 5 | `python-dotenv` default `ALLOWED_ORIGINS` is `http://localhost:3000`, not Vite's 5173. | Fresh setups hit CORS errors unless `.env` is created | Change the code default to include 5173. |
-| 6 | Deprecated FastAPI `@app.on_event` handlers. | Deprecation warnings | Migrate to lifespan handlers. |
 | 7 | Intent classification is keyword-based. | Unusual phrasings of synthesis questions get factual retrieval | Extend patterns, or add an LLM fallback. |
 | 8 | Sidebar **Settings** button is a placeholder. | None | Implement or remove. |
 | 9 | Landing PNG favicons and `public/brand/*` still show the old violet identity. | Brand inconsistency | Regenerate from the new mark. |

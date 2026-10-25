@@ -6,6 +6,7 @@ handlers, and API routers. Business logic lives in services/ and is not
 implemented yet — this file only assembles the architecture.
 """
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -24,11 +25,20 @@ from app.utils.exceptions import (
 setup_logging()
 logger = get_logger(__name__)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info(f"{settings.APP_NAME} starting up in '{settings.APP_ENV}' mode")
+    # TODO (future): Initialize ChromaDB client / warm up embedding model here.
+    yield
+    logger.info(f"{settings.APP_NAME} shutting down")
+
+
 app = FastAPI(
     title=settings.APP_NAME,
     description="Backend API for ResearchIQ — a RAG-powered research paper assistant.",
     version="0.1.0",
     debug=settings.DEBUG,
+    lifespan=lifespan,
 )
 
 # --- CORS ---
@@ -65,14 +75,3 @@ async def health_check() -> dict:
         "app_name": settings.APP_NAME,
         "version": "0.1.0",
     }
-
-
-@app.on_event("startup")
-async def on_startup() -> None:
-    logger.info(f"{settings.APP_NAME} starting up in '{settings.APP_ENV}' mode")
-    # TODO (future): Initialize ChromaDB client / warm up embedding model here.
-
-
-@app.on_event("shutdown")
-async def on_shutdown() -> None:
-    logger.info(f"{settings.APP_NAME} shutting down")

@@ -17,8 +17,10 @@ All notable changes to this project. Format loosely follows [Keep a Changelog](h
 
 ### Fixed
 - "Retry" in the Library error state passed the click event to `fetch` as an `AbortSignal`, causing `Failed to convert value to 'AbortSignal'`.
+- Backend: default CORS origins now include Vite's `http://localhost:5173`; migrated deprecated `on_event` startup/shutdown handlers to a FastAPI lifespan.
 
 ### Removed
+- Dead in-memory chunk/embedding stores in `chunk_service` and `embedding_service` (they grew with every upload and were never read); `backend/server.log` is no longer tracked and `*.log` is ignored.
 - Unused `GradientOrbs` component; non-functional account button in the top bar.
 
 ### Dependencies
