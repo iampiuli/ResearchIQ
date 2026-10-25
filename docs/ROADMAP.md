@@ -20,7 +20,7 @@ Honest status of the project as of **October 2026** (version 0.1.0, MVP complete
 - **No relational database.** Metadata is JSON sidecar files; no search/sort beyond upload time.
 - **Text-only PDFs.** Text is extracted with PyMuPDF; scanned PDFs (no text layer) produce no usable content, and there's no OCR. Figures and tables aren't understood.
 - **Single shared Chroma collection**, single instance. No horizontal scaling.
-- **No deleting a paper from the server.** "Remove from workspace" only detaches it client-side; the PDF and vectors remain.
+- **Deletion is permanent and global.** `DELETE /papers/{id}` removes a paper for everyone using the server; there is no trash or undo. "Remove from workspace" only detaches it in the browser.
 - **Gemini free-tier limits** apply (quota errors surface as HTTP 429).
 
 ## Next steps (suggested priority)
@@ -28,7 +28,7 @@ Honest status of the project as of **October 2026** (version 0.1.0, MVP complete
 1. ~~Page-level citations~~: done for new uploads (see [CHANGELOG](../CHANGELOG.md)).
 2. **Automated tests**: backend API tests and CI are in place; frontend component tests are still missing.
 3. **Cleanup** (issues 2–6): small, low-risk wins.
-4. **Real deletion**: `DELETE /papers/{id}` removing the PDF, sidecar and vectors.
+4. ~~Real deletion~~: done (`DELETE /papers/{id}` plus a confirm dialog in the sidebar).
 5. **Auth + database**: users, server-side workspaces, per-user paper ownership. Unblocks safe deployment.
 6. **Deployment**: containerize and ship (see [DEPLOYMENT.md](DEPLOYMENT.md)).
 7. **Features hinted at on the landing page**: export a literature review / citation list; richer paper metadata (title, authors, year) via `pdf_service.extract_metadata` (currently a stub); full-text search across papers.

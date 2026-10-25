@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
 import { PaperCard } from "@/components/workspace/PaperCard"
+import { DeletePaperDialog } from "@/components/workspace/DeletePaperDialog"
 import { PaperDetailsDialog } from "@/components/workspace/PaperDetailsDialog"
 import { cn } from "@/lib/utils"
 
@@ -204,6 +205,7 @@ function SidebarContent({
   activePaperId,
   onSelectPaper,
   onRemovePaper,
+  onDeletePaper,
   searchQuery,
   onSearchChange,
   onUploadClick,
@@ -217,6 +219,7 @@ function SidebarContent({
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false)
   const [renamingWorkspaceId, setRenamingWorkspaceId] = useState(null)
   const [detailsPaper, setDetailsPaper] = useState(null)
+  const [paperToDelete, setPaperToDelete] = useState(null)
   const searchInputRef = useRef(null)
 
   const hasActiveWorkspace = Boolean(activeWorkspaceId)
@@ -444,6 +447,7 @@ function SidebarContent({
                       onNavigate?.()
                     }}
                     onRemove={() => onRemovePaper(paper.id)}
+                    onDelete={() => setPaperToDelete(paper)}
                     onShowDetails={() => setDetailsPaper(paper)}
                   />
                 ))}
@@ -463,6 +467,7 @@ function SidebarContent({
       </div>
 
       <PaperDetailsDialog paper={detailsPaper} onOpenChange={setDetailsPaper} />
+      <DeletePaperDialog paper={paperToDelete} onOpenChange={setPaperToDelete} onConfirm={(paper) => onDeletePaper(paper.id)} />
     </div>
   )
 }

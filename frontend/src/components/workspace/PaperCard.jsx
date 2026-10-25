@@ -1,4 +1,4 @@
-import { ExternalLink, FileText, Info, Loader2, MoreHorizontal, Trash2 } from "lucide-react"
+import { ExternalLink, FileText, FolderMinus, Info, Loader2, MoreHorizontal, Trash2 } from "lucide-react"
 import { cn, formatFileSize, formatUploadedAt } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ function ProcessingMark({ status }) {
   )
 }
 
-export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
+export function PaperCard({ paper, active, onClick, onRemove, onDelete, onShowDetails }) {
   const meta = [formatFileSize(paper.size), formatUploadedAt(paper.uploadedAt)].filter(Boolean).join(" · ")
 
   return (
@@ -71,9 +71,13 @@ export function PaperCard({ paper, active, onClick, onRemove, onShowDetails }) {
               <Info className="size-3.5" />
               Details
             </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive" onClick={onRemove}>
-              <Trash2 className="size-3.5" />
+            <DropdownMenuItem onClick={onRemove}>
+              <FolderMinus className="size-3.5" />
               Remove from workspace
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              <Trash2 className="size-3.5" />
+              Delete permanently
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -98,6 +98,10 @@ class ChromaService:
         )
         return len(chunks)
 
+    def delete_paper(self, paper_id: str) -> None:
+        """Remove every chunk vector belonging to `paper_id` (a no-op if there are none)."""
+        self.collection.delete(where={"paper_id": paper_id})
+
     def count(self) -> int:
         """Return the current size of the collection."""
         return self.collection.count()
