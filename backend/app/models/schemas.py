@@ -75,6 +75,10 @@ class ChatSource(BaseModel):
     # this over `filename` (the opaque, stored UUID-based name) for display.
     original_filename: str
     paper_id: str
+    # 1-based page of the best-matching chunk from this paper, and every page
+    # that contributed context. Null for papers indexed before page tracking.
+    page: Optional[int] = None
+    pages: list[int] = []
 
 
 class ChatResponse(BaseModel):

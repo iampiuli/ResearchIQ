@@ -24,6 +24,28 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 NO_CONTEXT_ANSWER = "I couldn't find relevant information in the uploaded papers."
 
 
+def _build_sources(chunks: list) -> list[ChatSource]:
+    """One source per paper, in first-seen order, with the page of its best-scoring chunk."""
+    by_paper: dict[str, dict] = {}
+    for chunk in chunks:
+        entry = by_paper.setdefault(chunk.get("paper_id"), {"chunk": chunk, "best": chunk, "pages": set()})
+        if chunk["similarity_score"] > entry["best"]["similarity_score"]:
+            entry["best"] = chunk
+        if chunk.get("page") is not None:
+            entry["pages"].add(chunk["page"])
+
+    return [
+        ChatSource(
+            filename=entry["chunk"].get("filename"),
+            original_filename=entry["chunk"].get("original_filename") or entry["chunk"].get("filename"),
+            paper_id=paper_id,
+            page=entry["best"].get("page"),
+            pages=sorted(entry["pages"]),
+        )
+        for paper_id, entry in by_paper.items()
+    ]
+
+
 @router.post("", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     """Answer a question about uploaded papers using retrieval-augmented generation."""
@@ -57,19 +79,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
         logger.error(f"LLM generation failed for query '{request.query}': {exc}")
         raise LLMError("The AI service is temporarily unavailable. Please try again in a moment.") from exc
 
-    seen_paper_ids = set()
-    sources = []
-    for chunk in chunks:
-        paper_id = chunk.get("paper_id")
-        if paper_id not in seen_paper_ids:
-            seen_paper_ids.add(paper_id)
-            sources.append(
-                ChatSource(
-                    filename=chunk.get("filename"),
-                    original_filename=chunk.get("original_filename") or chunk.get("filename"),
-                    paper_id=paper_id,
-                )
-            )
+    sources = _build_sources(chunks)
 
     logger.info(f"Chat answer generated for query: {request.query} ({len(sources)} source(s))")
     return ChatResponse(query=request.query, answer=answer, sources=sources)

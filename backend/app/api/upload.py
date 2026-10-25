@@ -117,15 +117,17 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     size = len(data)
 
     try:
-        text, page_count = pdf_service.extract_text(str(destination))
+        pages, page_count = pdf_service.extract_pages(str(destination))
     except PDFProcessingError:
         destination.unlink(missing_ok=True)
         raise
 
-    character_count = len(text)
+    character_count = sum(len(page_text) for _, page_text in pages)
     uploaded_at = datetime.now(timezone.utc).isoformat()
 
-    chunks = chunk_service.split_text(text)
+    chunk_pages = chunk_service.split_pages(pages)
+    chunks = [chunk for chunk, _ in chunk_pages]
+    chunk_page_numbers = [page for _, page in chunk_pages]
     chunk_service.store_chunks(file_id, chunks)
     chunk_count = len(chunks)
 
@@ -141,6 +143,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
         original_filename=filename,
         page_count=page_count,
         uploaded_at=uploaded_at,
+        pages=chunk_page_numbers,
     )
 
     metadata = {

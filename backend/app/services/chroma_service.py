@@ -56,6 +56,7 @@ class ChromaService:
         page_count: int,
         uploaded_at: str,
         original_filename: str | None = None,
+        pages: list[int] | None = None,
     ) -> int:
         """
         Insert every chunk and its already-generated embedding into the
@@ -67,6 +68,9 @@ class ChromaService:
         retrieval can hand Gemini a readable label instead of a UUID —
         without it, synthesis-style answers that name their sources verbatim
         (e.g. "Paper 2 (...)") end up echoing the opaque stored filename.
+
+        `pages`, when given, holds the 1-based source page of each chunk
+        (1:1 with `chunks`) and is stored so citations can point at a page.
         """
         if not chunks:
             return 0
@@ -80,8 +84,10 @@ class ChromaService:
                 "original_filename": original_filename or filename,
                 "page_count": page_count,
                 "uploaded_at": uploaded_at,
+                # Chroma metadata can't hold None, so the key is omitted when unknown.
+                **({"page": pages[i]} if pages else {}),
             }
-            for chunk_id in ids
+            for i, chunk_id in enumerate(ids)
         ]
 
         self.collection.add(
