@@ -128,10 +128,9 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
     chunk_pages = chunk_service.split_pages(pages)
     chunks = [chunk for chunk, _ in chunk_pages]
     chunk_page_numbers = [page for _, page in chunk_pages]
-    chunk_service.store_chunks(file_id, chunks)
     chunk_count = len(chunks)
 
-    embeddings = embedding_service.embed_and_store(file_id, chunks)
+    embeddings = embedding_service.embed_batch(chunks)
     embedding_count = len(embeddings)
     embedding_dimension = embedding_service.get_embedding_dimension() if embeddings else 0
 

@@ -25,7 +25,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", "8000"))
 
     # --- CORS ---
-    ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
 
     # --- File storage ---
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "app/uploads")
