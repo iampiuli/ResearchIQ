@@ -27,6 +27,12 @@ class Settings:
     # --- CORS ---
     ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
 
+    # --- Auth (Clerk) ---
+    # JWKS URL is https://<your-clerk-frontend-api>/.well-known/jwks.json; the
+    # issuer is https://<your-clerk-frontend-api>. Both are required at runtime.
+    CLERK_JWKS_URL: str = os.getenv("CLERK_JWKS_URL", "")
+    CLERK_ISSUER: str = os.getenv("CLERK_ISSUER", "")
+
     # --- File storage ---
     UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "app/uploads")
     MAX_UPLOAD_SIZE_MB: int = int(os.getenv("MAX_UPLOAD_SIZE_MB", "50"))

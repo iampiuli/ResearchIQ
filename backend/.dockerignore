@@ -1,0 +1,7 @@
+venv
+__pycache__
+*.pyc
+.env
+tests
+app/uploads
+app/database/chroma_store

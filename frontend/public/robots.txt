@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /workspace
+Disallow: /sign-in
+Disallow: /sign-up

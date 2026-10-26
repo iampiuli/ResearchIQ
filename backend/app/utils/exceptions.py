@@ -61,6 +61,13 @@ class PaperNotFoundError(ResearchIQException):
         super().__init__(message, status.HTTP_404_NOT_FOUND)
 
 
+class AuthenticationError(ResearchIQException):
+    """Raised when a request has no valid session token."""
+
+    def __init__(self, message: str = "Authentication required."):
+        super().__init__(message, status.HTTP_401_UNAUTHORIZED)
+
+
 class InvalidFileError(ResearchIQException):
     """Raised when an uploaded file is missing, empty, or otherwise invalid."""
 

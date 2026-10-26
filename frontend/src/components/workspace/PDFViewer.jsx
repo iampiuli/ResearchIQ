@@ -1,15 +1,43 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ChevronLeft, ChevronRight, FileWarning, Highlighter, Minus, Plus, X } from "lucide-react"
 import { Document, Page, pdfjs } from "react-pdf"
 import "react-pdf/dist/Page/AnnotationLayer.css"
 import "react-pdf/dist/Page/TextLayer.css"
 import { Button } from "@/components/ui/button"
+import { fetchPdfBlobUrl } from "@/lib/api"
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
 ).toString()
+
+/** Fetches the PDF with the user's token (an <iframe>/URL can't send headers) and exposes it as a blob URL. */
+function usePdfBlobUrl(url) {
+  const [state, setState] = useState({ url: null, blobUrl: null, failed: false })
+
+  useEffect(() => {
+    if (!url) return undefined
+    const controller = new AbortController()
+    let created = null
+    fetchPdfBlobUrl(url, controller.signal)
+      .then((blobUrl) => {
+        created = blobUrl
+        setState({ url, blobUrl, failed: false })
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") setState({ url, blobUrl: null, failed: true })
+      })
+    return () => {
+      controller.abort()
+      if (created) URL.revokeObjectURL(created)
+    }
+  }, [url])
+
+  // Ignore a result that belongs to a previously selected paper.
+  const current = state.url === url
+  return { blobUrl: current ? state.blobUrl : null, failed: current && state.failed }
+}
 
 function ZoomControls({ zoom, onZoomIn, onZoomOut }) {
   return (
@@ -91,7 +119,7 @@ export function PDFViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paper?.id])
 
-  const fileProp = useMemo(() => (paper?.fileUrl ? { url: paper.fileUrl } : null), [paper?.fileUrl])
+  const { blobUrl, failed: fileFailed } = usePdfBlobUrl(paper?.fileUrl)
 
   if (!paper) {
     return (
@@ -137,9 +165,13 @@ export function PDFViewer({
         )}
 
         <div className="mx-auto w-fit">
-          {fileProp ? (
+          {fileFailed ? (
+            <DocumentError />
+          ) : !blobUrl ? (
+            <PageSkeleton />
+          ) : (
             <Document
-              file={fileProp}
+              file={blobUrl}
               onLoadSuccess={({ numPages: loadedPages }) => onDocumentLoad?.(loadedPages)}
               onLoadError={() => onDocumentLoad?.(0)}
               loading={<PageSkeleton />}
@@ -167,8 +199,6 @@ export function PDFViewer({
                 </motion.div>
               </AnimatePresence>
             </Document>
-          ) : (
-            <DocumentError />
           )}
         </div>
       </div>

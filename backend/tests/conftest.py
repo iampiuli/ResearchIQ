@@ -37,6 +37,7 @@ from app.main import app  # noqa: E402
 from app.services.chroma_service import chroma_service  # noqa: E402
 from app.services.embedding_service import embedding_service  # noqa: E402
 from app.services.llm_service import llm_service  # noqa: E402
+from app.utils.auth import get_current_user  # noqa: E402
 from app.utils.config import settings  # noqa: E402
 
 EMBEDDING_DIM = 128
@@ -93,9 +94,19 @@ def llm_calls(monkeypatch):
 
 
 @pytest.fixture
-def client():
-    with TestClient(app) as test_client:
-        yield test_client
+def current_user():
+    """The id the fake auth layer reports; tests change `current_user["id"]` to act as someone else."""
+    return {"id": "user_a"}
+
+
+@pytest.fixture
+def client(current_user):
+    app.dependency_overrides[get_current_user] = lambda: current_user["id"]
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.clear()
 
 
 def make_pdf(*page_texts: str) -> bytes:

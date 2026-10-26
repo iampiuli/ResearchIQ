@@ -33,10 +33,11 @@ const PROMPT_CHIP_CLASS = cn(
   "active:bg-accent/70"
 )
 
-const WORKSPACES_STORAGE_KEY = "researchiq.workspaces"
-const ACTIVE_WORKSPACE_ID_KEY = "researchiq.activeWorkspaceId"
+// Workspaces live in this browser only, so keys are namespaced by user id to keep
+// accounts that share a browser from seeing each other's workspaces and chats.
+const workspacesKey = (userId) => `researchiq.workspaces.${userId}`
+const activeWorkspaceIdKey = (userId) => `researchiq.activeWorkspaceId.${userId}`
 // Pre-workspace model — read once for a one-time migration, then discarded.
-const LEGACY_CONVERSATIONS_STORAGE_KEY = "researchiq.conversations"
 const PDF_COLLAPSED_KEY = "researchiq.pdfViewer.collapsed"
 
 function loadPdfCollapsed() {
@@ -61,59 +62,32 @@ function toUiPaper(paperSummary) {
   }
 }
 
-/**
- * Loads workspaces from storage, migrating the pre-workspace "conversations"
- * model exactly once: each old conversation becomes a workspace with no
- * attached papers (that concept didn't exist yet, so there's nothing to
- * carry over) but keeps its messages/name/timestamps. The legacy key is
- * deleted immediately after a successful migration so it cannot re-fire.
- */
-function loadWorkspaces() {
+function loadWorkspaces(userId) {
   try {
-    const raw = localStorage.getItem(WORKSPACES_STORAGE_KEY)
+    const raw = localStorage.getItem(workspacesKey(userId))
     if (raw) return JSON.parse(raw)
   } catch {
-    // Corrupt current data — fall through to an empty workspace list below.
+    // Corrupt data — fall through to an empty workspace list.
   }
-
-  try {
-    const legacyRaw = localStorage.getItem(LEGACY_CONVERSATIONS_STORAGE_KEY)
-    if (!legacyRaw) return []
-
-    const legacyConversations = JSON.parse(legacyRaw)
-    const migrated = legacyConversations.map((conversation) => ({
-      id: conversation.id,
-      name: conversation.title,
-      attachedPaperIds: [],
-      messages: conversation.messages ?? [],
-      activePaperId: null,
-      createdAt: conversation.updatedAt ?? Date.now(),
-      updatedAt: conversation.updatedAt ?? Date.now(),
-    }))
-    localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify(migrated))
-    localStorage.removeItem(LEGACY_CONVERSATIONS_STORAGE_KEY)
-    return migrated
-  } catch {
-    return []
-  }
+  return []
 }
 
-function loadStoredActiveWorkspaceId() {
+function loadStoredActiveWorkspaceId(userId) {
   try {
-    return localStorage.getItem(ACTIVE_WORKSPACE_ID_KEY) || null
+    return localStorage.getItem(activeWorkspaceIdKey(userId)) || null
   } catch {
     return null
   }
 }
 
-export function WorkspacePage() {
+export function WorkspacePage({ userId }) {
   const [messages, setMessages] = useState([])
   const [draft, setDraft] = useState("")
   const [isThinking, setIsThinking] = useState(false)
   const [pendingWorkspaceId, setPendingWorkspaceId] = useState(null)
 
-  const [workspaces, setWorkspaces] = useState(loadWorkspaces)
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(loadStoredActiveWorkspaceId)
+  const [workspaces, setWorkspaces] = useState(() => loadWorkspaces(userId))
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(() => loadStoredActiveWorkspaceId(userId))
   // Mirrors activeWorkspaceId synchronously so an in-flight /chat response can
   // tell, after the fact, whether the user has since switched workspaces —
   // state updates alone would lag by a render and misattribute the reply.
@@ -221,20 +195,20 @@ export function WorkspacePage() {
   // Persist workspaces (incl. their messages and attached papers) across reloads.
   useEffect(() => {
     try {
-      localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify(workspaces))
+      localStorage.setItem(workspacesKey(userId), JSON.stringify(workspaces))
     } catch {
       // Storage can fail (quota, private mode) — history just won't survive a reload.
     }
-  }, [workspaces])
+  }, [workspaces, userId])
 
   useEffect(() => {
     try {
-      if (activeWorkspaceId) localStorage.setItem(ACTIVE_WORKSPACE_ID_KEY, activeWorkspaceId)
-      else localStorage.removeItem(ACTIVE_WORKSPACE_ID_KEY)
+      if (activeWorkspaceId) localStorage.setItem(activeWorkspaceIdKey(userId), activeWorkspaceId)
+      else localStorage.removeItem(activeWorkspaceIdKey(userId))
     } catch {
       // Non-fatal — just won't restore the active workspace after a reload.
     }
-  }, [activeWorkspaceId])
+  }, [activeWorkspaceId, userId])
 
   useEffect(() => {
     try {
@@ -525,6 +499,8 @@ export function WorkspacePage() {
 
   return (
     <WorkspaceLayout>
+      <title>Workspace — ResearchIQ</title>
+      <meta name="robots" content="noindex" />
       <input
         ref={fileInputRef}
         type="file"
