@@ -1,0 +1,14 @@
+{
+  "name": "ResearchIQ",
+  "short_name": "ResearchIQ",
+  "description": "AI research assistant for your PDFs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F3EC",
+  "theme_color": "#F6F3EC",
+  "icons": [
+    { "src": "/brand/png/icon-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "/brand/png/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/png/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 
 from app.models.schemas import (
     DuplicateFileResult,
@@ -33,6 +33,7 @@ from app.services.chroma_service import chroma_service
 from app.services.chunk_service import chunk_service
 from app.services.embedding_service import embedding_service
 from app.services.pdf_service import pdf_service
+from app.utils.auth import get_current_user
 from app.utils.config import settings
 from app.utils.exceptions import (
     FileTooLargeError,
@@ -79,8 +80,8 @@ async def _read_validated_pdf(file: UploadFile) -> bytes:
     return bytes(data)
 
 
-def _load_existing_hashes(upload_dir: Path) -> dict:
-    """Build a {file_hash: metadata} index from existing paper sidecars for duplicate detection."""
+def _load_existing_hashes(upload_dir: Path, user_id: str) -> dict:
+    """Build a {file_hash: metadata} index of `user_id`'s own papers for duplicate detection."""
     hashes = {}
     for metadata_path in upload_dir.glob("*.json"):
         try:
@@ -88,12 +89,12 @@ def _load_existing_hashes(upload_dir: Path) -> dict:
         except (json.JSONDecodeError, OSError):
             continue
         file_hash = data.get("file_hash")
-        if file_hash:
+        if file_hash and data.get("user_id") == user_id:
             hashes[file_hash] = data
     return hashes
 
 
-async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) -> dict:
+async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict, user_id: str) -> dict:
     """
     Run one file through duplicate detection and, if new, the full
     validate/save/extract/chunk/embed/store pipeline.
@@ -136,6 +137,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
 
     vector_count = chroma_service.add_chunks(
         paper_id=file_id,
+        user_id=user_id,
         chunks=chunks,
         embeddings=embeddings,
         filename=stored_filename,
@@ -147,6 +149,7 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
 
     metadata = {
         "id": file_id,
+        "user_id": user_id,
         "filename": stored_filename,
         "original_filename": filename,
         "size": size,
@@ -176,14 +179,16 @@ async def _process_file(file: UploadFile, upload_dir: Path, known_hashes: dict) 
 
 
 @router.post("", response_model=MultiUploadResponse, status_code=status.HTTP_201_CREATED)
-async def upload_papers(files: list[UploadFile] = File(...)) -> MultiUploadResponse:
+async def upload_papers(
+    files: list[UploadFile] = File(...), user_id: str = Depends(get_current_user)
+) -> MultiUploadResponse:
     """Process every uploaded PDF independently, skipping duplicates and isolating failures."""
     if not files:
         raise InvalidFileError("No files were provided.")
 
     upload_dir = Path(settings.UPLOAD_DIR)
     upload_dir.mkdir(parents=True, exist_ok=True)
-    known_hashes = _load_existing_hashes(upload_dir)
+    known_hashes = _load_existing_hashes(upload_dir, user_id)
 
     uploaded: list[UploadedFileResult] = []
     duplicates: list[DuplicateFileResult] = []
@@ -192,7 +197,7 @@ async def upload_papers(files: list[UploadFile] = File(...)) -> MultiUploadRespo
     for file in files:
         filename = file.filename or "unknown.pdf"
         try:
-            result = await _process_file(file, upload_dir, known_hashes)
+            result = await _process_file(file, upload_dir, known_hashes, user_id)
         except ResearchIQException as exc:
             logger.warning(f"Failed to process '{filename}': {exc.message}")
             failed.append(FailedFileResult(filename=filename, reason=exc.message))

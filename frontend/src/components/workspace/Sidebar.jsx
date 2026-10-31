@@ -411,9 +411,13 @@ function SidebarContent({
                 </p>
               )}
               {hasActiveWorkspace && papersStatus === "loading" && (
-                <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
-                  <Loader2 className="size-3.5 animate-spin" />
-                  Loading papers…
+                <div className="space-y-2 px-2 py-2" role="status" aria-label="Loading papers">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="animate-pulse space-y-1.5 rounded-lg border border-border/60 px-3 py-2.5">
+                      <div className="h-3 w-4/5 rounded bg-foreground/[0.07]" />
+                      <div className="h-2.5 w-1/2 rounded bg-foreground/[0.05]" />
+                    </div>
+                  ))}
                 </div>
               )}
               {hasActiveWorkspace && papersStatus === "error" && (

@@ -6,6 +6,19 @@
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
 
+// Set once by <AuthBridge> (see App.jsx) to Clerk's getToken. Tokens are
+// short-lived, so one is requested fresh for every call rather than cached.
+let getToken = async () => null
+
+export function setTokenGetter(fn) {
+  getToken = fn
+}
+
+async function authHeaders(extra = {}) {
+  const token = await getToken()
+  return token ? { ...extra, Authorization: `Bearer ${token}` } : extra
+}
+
 class ApiError extends Error {
   constructor(message, status) {
     super(message)
@@ -35,6 +48,7 @@ export async function uploadPapers(files) {
 
   const response = await fetch(`${API_BASE_URL}/upload`, {
     method: "POST",
+    headers: await authHeaders(),
     body: formData,
   })
 
@@ -42,20 +56,30 @@ export async function uploadPapers(files) {
   return response.json()
 }
 
-/** Public URL for an uploaded PDF's stored (UUID-based) filename, served read-only via StaticFiles. */
+/** URL of an uploaded PDF's stored (UUID-based) filename; fetch it with `fetchPdfBlobUrl` (it needs auth). */
 export function fileUrlFor(storedFilename) {
   return `${API_BASE_URL}/files/${storedFilename}`
 }
 
+/** Download one of the caller's PDFs with auth and return an object URL (the caller must revoke it). */
+export async function fetchPdfBlobUrl(url, signal) {
+  const response = await fetch(url, { headers: await authHeaders(), signal })
+  if (!response.ok) throw new ApiError(await parseErrorMessage(response), response.status)
+  return URL.createObjectURL(await response.blob())
+}
+
 /** DELETE /papers/:id — permanently removes the PDF, its metadata and its vectors (204 on success). */
 export async function deletePaper(paperId) {
-  const response = await fetch(`${API_BASE_URL}/papers/${encodeURIComponent(paperId)}`, { method: "DELETE" })
+  const response = await fetch(`${API_BASE_URL}/papers/${encodeURIComponent(paperId)}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  })
   if (!response.ok) throw new ApiError(await parseErrorMessage(response), response.status)
 }
 
 /** GET /papers — list of previously uploaded papers. */
 export async function fetchPapers(signal) {
-  const response = await fetch(`${API_BASE_URL}/papers`, { signal })
+  const response = await fetch(`${API_BASE_URL}/papers`, { headers: await authHeaders(), signal })
   if (!response.ok) throw new ApiError(await parseErrorMessage(response), response.status)
   return response.json()
 }
@@ -69,7 +93,7 @@ export async function fetchPapers(signal) {
 export async function sendChatMessage(query, paperIds) {
   const response = await fetch(`${API_BASE_URL}/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ query, paper_ids: paperIds }),
   })
 

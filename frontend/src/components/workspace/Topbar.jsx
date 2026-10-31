@@ -1,4 +1,5 @@
 import { BookOpen, PanelLeft, PanelRightClose, PanelRightOpen } from "lucide-react"
+import { UserButton } from "@clerk/clerk-react"
 import { Button } from "@/components/ui/button"
 
 export function Topbar({
@@ -41,6 +42,9 @@ export function Topbar({
         >
           {pdfCollapsed ? <PanelRightOpen className="size-4" /> : <PanelRightClose className="size-4" />}
         </Button>
+        <div className="ml-1 flex size-8 items-center justify-center">
+          <UserButton afterSignOutUrl="/" />
+        </div>
       </div>
     </header>
   )

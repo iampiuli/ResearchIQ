@@ -7,13 +7,16 @@ the retrieved chunks to llm_service for grounded answer generation, and
 returns the answer with deduplicated paper sources.
 """
 
-from fastapi import APIRouter
+import time
+
+from fastapi import APIRouter, Depends
 from google.api_core.exceptions import ResourceExhausted
 
 from app.models.schemas import ChatRequest, ChatResponse, ChatSource
 from app.services.intent_service import SYNTHESIS, classify_intent
 from app.services.retrieval_service import retrieval_service
 from app.services.llm_service import llm_service
+from app.utils.auth import get_current_user
 from app.utils.exceptions import LLMError, QuotaExceededError
 from app.utils.logger import get_logger
 
@@ -47,26 +50,33 @@ def _build_sources(chunks: list) -> list[ChatSource]:
 
 
 @router.post("", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
+async def chat(request: ChatRequest, user_id: str = Depends(get_current_user)) -> ChatResponse:
     """Answer a question about uploaded papers using retrieval-augmented generation."""
     logger.info(f"Chat query received: {request.query}")
 
     intent = classify_intent(request.query)
+    started = time.perf_counter()
 
     # Representative-per-paper retrieval only makes sense against a bounded,
     # known set of papers (a workspace) — with no paper_ids (e.g. the
     # unscoped /search-style caller), fall back to standard retrieval.
     if intent == SYNTHESIS and request.paper_ids:
-        chunks = retrieval_service.retrieve_representative_chunks(request.query, paper_ids=request.paper_ids)
+        chunks = retrieval_service.retrieve_representative_chunks(
+            request.query, user_id=user_id, paper_ids=request.paper_ids
+        )
     else:
-        chunks = retrieval_service.retrieve_relevant_chunks(request.query, paper_ids=request.paper_ids)
+        chunks = retrieval_service.retrieve_relevant_chunks(request.query, user_id=user_id, paper_ids=request.paper_ids)
+
+    retrieval_s = time.perf_counter() - started
 
     if not chunks:
-        logger.info(f"No relevant chunks found for query: {request.query}")
+        logger.info(f"No relevant chunks found for query: {request.query} (retrieval {retrieval_s:.2f}s)")
         return ChatResponse(query=request.query, answer=NO_CONTEXT_ANSWER, sources=[])
 
     try:
+        llm_started = time.perf_counter()
         answer = llm_service.generate_answer(request.query, chunks, intent=intent)
+        llm_s = time.perf_counter() - llm_started
     except ResourceExhausted as exc:
         # Gemini's free-tier daily request quota is used up — distinct from a
         # genuine outage/timeout, so the user gets an accurate, actionable
@@ -81,5 +91,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     sources = _build_sources(chunks)
 
-    logger.info(f"Chat answer generated for query: {request.query} ({len(sources)} source(s))")
+    logger.info(
+        f"Chat answer generated for query: {request.query} ({len(sources)} source(s)); "
+        f"{len(chunks)} chunk(s), retrieval {retrieval_s:.2f}s, gemini {llm_s:.2f}s"
+    )
     return ChatResponse(query=request.query, answer=answer, sources=sources)

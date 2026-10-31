@@ -64,6 +64,7 @@ class RetrievalService:
     def retrieve_relevant_chunks(
         self,
         query: str,
+        user_id: str,
         top_k: int = 5,
         min_similarity: float = settings.MIN_SIMILARITY_THRESHOLD,
         paper_ids: list[str] | None = None,
@@ -78,6 +79,8 @@ class RetrievalService:
         outside the restricted set. `None` searches the whole collection
         (existing behavior); `[]` means "search nothing" and short-circuits
         without querying Chroma, since an empty `$in` filter is not meaningful.
+        Every search is also filtered to `user_id`, so one user can never
+        retrieve another user's chunks (even by guessing paper ids).
         Restricting to a small paper set can naturally yield fewer than
         `top_k` results — the same way the `min_similarity` filter already can.
         """
@@ -96,8 +99,10 @@ class RetrievalService:
             "n_results": top_k,
             "include": ["documents", "metadatas", "distances"],
         }
-        if paper_ids is not None:
-            query_kwargs["where"] = {"paper_id": {"$in": paper_ids}}
+        owner = {"user_id": user_id}
+        query_kwargs["where"] = (
+            {"$and": [owner, {"paper_id": {"$in": paper_ids}}]} if paper_ids is not None else owner
+        )
 
         results = chroma_service.collection.query(**query_kwargs)
         chunks = _chunks_from_query_result(results, min_similarity)
@@ -111,6 +116,7 @@ class RetrievalService:
     def retrieve_representative_chunks(
         self,
         query: str,
+        user_id: str,
         paper_ids: list[str],
         chunks_per_paper: int = settings.SYNTHESIS_CHUNKS_PER_PAPER,
         max_total_chunks: int = settings.SYNTHESIS_MAX_TOTAL_CHUNKS,
@@ -151,7 +157,7 @@ class RetrievalService:
             results = chroma_service.collection.query(
                 query_embeddings=[query_embedding],
                 n_results=effective_per_paper,
-                where={"paper_id": paper_id},
+                where={"$and": [{"user_id": user_id}, {"paper_id": paper_id}]},
                 include=["documents", "metadatas", "distances"],
             )
             chunks.extend(_chunks_from_query_result(results, min_similarity=None))

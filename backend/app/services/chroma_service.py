@@ -50,6 +50,7 @@ class ChromaService:
     def add_chunks(
         self,
         paper_id: str,
+        user_id: str,
         chunks: list,
         embeddings: list,
         filename: str,
@@ -69,6 +70,8 @@ class ChromaService:
         without it, synthesis-style answers that name their sources verbatim
         (e.g. "Paper 2 (...)") end up echoing the opaque stored filename.
 
+        `user_id` records the owning user; retrieval always filters on it.
+
         `pages`, when given, holds the 1-based source page of each chunk
         (1:1 with `chunks`) and is stored so citations can point at a page.
         """
@@ -79,6 +82,7 @@ class ChromaService:
         metadatas = [
             {
                 "paper_id": paper_id,
+                "user_id": user_id,
                 "chunk_id": chunk_id,
                 "filename": filename,
                 "original_filename": original_filename or filename,

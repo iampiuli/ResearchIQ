@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Link } from "react-router-dom"
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react"
 import { ArrowRight, Menu, X } from "lucide-react"
 import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
@@ -43,11 +44,23 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="hidden items-center md:flex">
-          <Button render={<Link to="/workspace" />} nativeButton={false}>
-            Open workspace
-            <ArrowRight data-icon="inline-end" />
-          </Button>
+        <div className="hidden items-center gap-2 md:flex">
+          <SignedOut>
+            <Button variant="ghost" render={<Link to="/sign-in" />} nativeButton={false}>
+              Sign in
+            </Button>
+            <Button render={<Link to="/sign-up" />} nativeButton={false}>
+              Get started
+              <ArrowRight data-icon="inline-end" />
+            </Button>
+          </SignedOut>
+          <SignedIn>
+            <Button render={<Link to="/workspace" />} nativeButton={false}>
+              Open workspace
+              <ArrowRight data-icon="inline-end" />
+            </Button>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
 
         <Button
@@ -82,14 +95,34 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <Button
-                render={<Link to="/workspace" onClick={() => setOpen(false)} />}
-                nativeButton={false}
-                className="mt-2 justify-center"
-              >
-                Open workspace
-                <ArrowRight data-icon="inline-end" />
-              </Button>
+              <SignedOut>
+                <Button
+                  variant="outline"
+                  render={<Link to="/sign-in" onClick={() => setOpen(false)} />}
+                  nativeButton={false}
+                  className="mt-2 justify-center"
+                >
+                  Sign in
+                </Button>
+                <Button
+                  render={<Link to="/sign-up" onClick={() => setOpen(false)} />}
+                  nativeButton={false}
+                  className="justify-center"
+                >
+                  Get started
+                  <ArrowRight data-icon="inline-end" />
+                </Button>
+              </SignedOut>
+              <SignedIn>
+                <Button
+                  render={<Link to="/workspace" onClick={() => setOpen(false)} />}
+                  nativeButton={false}
+                  className="mt-2 justify-center"
+                >
+                  Open workspace
+                  <ArrowRight data-icon="inline-end" />
+                </Button>
+              </SignedIn>
             </div>
           </motion.div>
         )}

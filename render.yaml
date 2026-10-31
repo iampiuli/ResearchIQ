@@ -1,0 +1,25 @@
+# Render Blueprint: the backend only (the frontend goes on Vercel, see docs/DEPLOYMENT.md).
+services:
+  - type: web
+    name: researchiq-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # The embedding model + torch need ~1-2 GB RAM; Render's "standard" plan has 2 GB.
+    plan: standard
+    healthCheckPath: /health
+    # Local file storage + embedded Chroma: exactly one instance, with a disk.
+    numInstances: 1
+    disk:
+      name: researchiq-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false # your Vercel URL, e.g. https://researchiq.vercel.app
+      - key: CLERK_JWKS_URL
+        sync: false # https://<clerk-frontend-api>/.well-known/jwks.json
+      - key: CLERK_ISSUER
+        sync: false # https://<clerk-frontend-api>
