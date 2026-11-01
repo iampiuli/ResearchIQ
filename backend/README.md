@@ -55,8 +55,6 @@ pip install -r requirements.txt
 
 Copy `.env.example` to `.env`, set `GOOGLE_API_KEY` to a valid [Gemini API key](https://ai.google.dev/), and make sure `ALLOWED_ORIGINS` includes your frontend (`http://localhost:5173` for Vite). Always run the server **from the activated venv**; the global Python usually lacks the dependencies.
 
-Full guide and troubleshooting: [../docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md).
-
 ## Running
 
 ```bash
@@ -100,8 +98,13 @@ See `.env.example` for the full list. Notable ones:
 
 ## Scripts
 
-`scripts/reset_dev.py` (wipe local uploads + vector store) and `scripts/backfill_original_filenames.py` (one-time metadata migration). Both are manual-only; see [../docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md#scripts-backendscripts).
+`scripts/reset_dev.py` (wipe local uploads + vector store) and `scripts/backfill_original_filenames.py` (one-time metadata migration). Both are manual-only.
 
-## More documentation
+## Tests
 
-[Architecture](../docs/ARCHITECTURE.md) · [API reference](../docs/API.md) · [Configuration](../docs/CONFIGURATION.md) · [Development & testing](../docs/DEVELOPMENT.md) · [Known issues](../docs/ROADMAP.md)
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+The suite runs against temporary storage with fake embeddings and a stubbed Gemini. It never touches `app/uploads` or the Chroma store.

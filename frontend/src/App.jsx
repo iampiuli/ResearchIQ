@@ -61,7 +61,7 @@ function MissingConfig() {
       <h1 className="font-serif text-2xl">Sign-in is not configured</h1>
       <p className="mt-3 text-sm text-muted-foreground">
         Set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in <code>frontend/.env.local</code> and restart the dev server.
-        See docs/CONFIGURATION.md.
+        See frontend/.env.example.
       </p>
     </main>
   )

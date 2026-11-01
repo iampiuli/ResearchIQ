@@ -4,13 +4,15 @@ All notable changes to this project. Format loosely follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.2.0]: 2026-11-01
+
 ### Added
 - **Accounts (Clerk):** sign-in and sign-up pages, a protected `/workspace`, and a user menu. Every API route now requires a Clerk session token, and papers, search, chat and PDF downloads are private to their owner. `/files/<id>.pdf` is authenticated instead of a public static mount. Papers uploaded before this change have no owner and are no longer visible. Workspaces in the browser are namespaced per user.
 - **Deploy config:** `backend/Dockerfile`, `render.yaml` (backend) and `frontend/vercel.json` (frontend).
 - **Delete papers:** `DELETE /papers/{id}` removes a paper's PDF, metadata and vectors; the sidebar menu has a new "Delete permanently" action with a confirmation dialog, separate from "Remove from workspace".
 - **Page-level citations:** PDFs are now indexed per page, chat sources carry `page` (best-matching chunk) and `pages`, and citation chips link to the cited page in the reader. Papers uploaded before this change have no page data until re-uploaded.
-- Backend test suite (pytest, 27 tests) that runs against temporary storage with fake embeddings and a stubbed Gemini, and a GitHub Actions workflow running backend tests plus frontend lint and build.
-- Full project documentation under `docs/` plus `CONTRIBUTING.md`, `SECURITY.md` and this changelog.
+- Backend test suite (pytest, 47 tests) that runs against temporary storage with fake embeddings and a stubbed Gemini, and a GitHub Actions workflow running backend tests plus frontend lint and build.
+- `CONTRIBUTING.md`, `SECURITY.md` and this changelog.
 
 ### Changed
 - **Complete UI redesign, "quiet reading room":** warm paper palette, deep ink, single moss-green accent, marker-yellow reserved for citations; Newsreader serif for headings and answers with Geist for UI; hairline borders instead of cards; restyled sidebar, chat, composer, PDF reader, dialogs, menus and toasts.
@@ -23,6 +25,7 @@ All notable changes to this project. Format loosely follows [Keep a Changelog](h
 - Backend: default CORS origins now include Vite's `http://localhost:5173`; migrated deprecated `on_event` startup/shutdown handlers to a FastAPI lifespan.
 
 ### Removed
+- Unused `PDFService.extract_metadata` stub.
 - Dead in-memory chunk/embedding stores in `chunk_service` and `embedding_service` (they grew with every upload and were never read); `backend/server.log` is no longer tracked and `*.log` is ignored.
 - Unused `GradientOrbs` component; non-functional account button in the top bar.
 

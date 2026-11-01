@@ -1,76 +1,76 @@
 # ResearchIQ
 
-**A quiet reading room for research papers.** Upload PDFs, ask questions across them, and get answers grounded in your documents, with the source papers listed under every answer.
+**A quiet reading room for research papers.** Upload PDFs, ask questions across them, and get answers grounded in your documents, with page-level citations under every answer.
 
-Built with a retrieval-augmented generation (RAG) pipeline: papers are chunked and embedded locally, the most relevant passages are retrieved, and Google Gemini writes an answer using *only* that context.
+Papers are chunked and embedded locally, the most relevant passages are retrieved, and Google Gemini answers using only that context.
 
 ## Features
 
-- **Multi-file PDF upload** with SHA-256 duplicate detection
-- **Grounded Q&A** over one or many papers, with per-paper source citations
-- **Intent-aware retrieval**: synthesis-style questions ("summarize", "compare", "research gaps") draw on *every* paper in the workspace; targeted questions use similarity search
-- **Workspaces**: group papers and conversations together (stored in your browser)
-- **In-app PDF reader** beside the chat
-- **Calm, minimal interface**: warm paper tones, serif answers, one accent color ([design system](docs/DESIGN_SYSTEM.md))
-- Semantic `/search` endpoint for inspecting raw retrieval
+- Multi-file PDF upload with duplicate detection
+- Grounded Q&A over one or many papers, with citations that open the cited page in the built-in reader
+- Synthesis questions ("summarize", "compare", "research gaps") draw on every paper in the workspace; targeted questions use similarity search
+- Workspaces to group papers and conversations
+- Private accounts via Clerk: papers and chats belong to their owner
 
-## Quick start
+## Getting started
 
-```powershell
-# Backend (Python 3.11)
+**Prerequisites:** Python 3.11, Node 20+, a [Gemini API key](https://ai.google.dev/) and a free [Clerk](https://clerk.com) application.
+
+**Backend**
+
+```bash
 cd backend
-py -3.11 -m venv venv
-venv\Scripts\activate
+python -m venv venv
+venv\Scripts\activate          # macOS/Linux: source venv/bin/activate
 pip install -r requirements.txt
-copy .env.example .env          # then set GOOGLE_API_KEY in .env
+cp .env.example .env           # set GOOGLE_API_KEY, CLERK_JWKS_URL, CLERK_ISSUER
 uvicorn app.main:app --reload --port 8000
-
-# Frontend (new terminal)
-cd frontend
-npm install
-npm run dev                     # http://localhost:5173
 ```
 
-You need a free [Gemini API key](https://ai.google.dev/). Full instructions and troubleshooting: **[Getting Started](docs/GETTING_STARTED.md)**.
+**Frontend**
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local     # set VITE_CLERK_PUBLISHABLE_KEY
+npm run dev                    # http://localhost:5173
+```
+
+Interactive API docs are at `http://localhost:8000/docs`.
+
+## Configuration
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `GOOGLE_API_KEY` | backend | Gemini key used for answers |
+| `CLERK_JWKS_URL`, `CLERK_ISSUER` | backend | Verify Clerk session tokens |
+| `ALLOWED_ORIGINS` | backend | Comma-separated frontend origins (CORS) |
+| `MAX_UPLOAD_SIZE_MB` | backend | Per-file upload limit (default 50) |
+| `VITE_CLERK_PUBLISHABLE_KEY` | frontend | Clerk publishable key |
+| `VITE_API_BASE_URL` | frontend | Backend URL (default `http://localhost:8000`) |
+
+See [backend/.env.example](backend/.env.example) for the full list.
+
+## Tests
+
+```bash
+cd backend && pip install -r requirements-dev.txt && pytest
+cd frontend && npm run lint && npm run build
+```
+
+Backend tests use temporary storage, fake embeddings and a stubbed Gemini, so they need no network or API key.
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, Tailwind CSS v4, Framer Motion, react-pdf, react-router |
-| Backend | FastAPI, LangChain, PyMuPDF |
-| Retrieval | Sentence Transformers (`all-MiniLM-L6-v2`), ChromaDB |
-| LLM | Google Gemini |
+React 19, Vite, Tailwind CSS v4 · FastAPI, LangChain, PyMuPDF · Sentence Transformers (`all-MiniLM-L6-v2`), ChromaDB · Google Gemini · Clerk
 
-## Documentation
+## Deployment
 
-| Doc | What's in it |
-|---|---|
-| [Getting Started](docs/GETTING_STARTED.md) | Setup, first run, troubleshooting |
-| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, key decisions |
-| [API Reference](docs/API.md) | Endpoints, payloads, errors |
-| [Configuration](docs/CONFIGURATION.md) | Every environment variable, retrieval tuning |
-| [Frontend Guide](docs/FRONTEND.md) | Structure, state, persistence, conventions |
-| [Design System](docs/DESIGN_SYSTEM.md) | Colors, typography, components, principles |
-| [Development](docs/DEVELOPMENT.md) | Workflow, safe testing, scripts |
-| [Deployment](docs/DEPLOYMENT.md) | Requirements and security checklist for going live |
-| [Roadmap](docs/ROADMAP.md) | Known issues, limitations, next steps |
-| [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) | Project policies |
+The backend ships as a Docker image ([render.yaml](render.yaml)) and the frontend deploys to Vercel ([frontend/vercel.json](frontend/vercel.json)). The backend keeps files and the vector store on local disk, so run a single instance with a persistent volume.
 
-Component-level READMEs: [backend](backend/README.md) · [frontend](frontend/README.md).
+## Contributing
 
-## Project structure
-
-```
-ResearchIQ/
-  backend/            FastAPI app (api/, services/, models/, utils/), scripts/
-  frontend/           React app (pages/, components/, lib/)
-  docs/               Project documentation
-```
-
-## Status
-
-MVP complete (v0.1.0). Not yet deployed; single-user, no authentication. Citations currently name the source paper but not the page. See the [Roadmap](docs/ROADMAP.md) for known issues.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: [SECURITY.md](SECURITY.md). Release notes: [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
