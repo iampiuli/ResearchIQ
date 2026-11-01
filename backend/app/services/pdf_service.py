@@ -41,14 +41,5 @@ class PDFService:
 
         return pages, page_count
 
-    def extract_metadata(self, file_path: str) -> dict:
-        """
-        Extract PDF metadata (title, author, page count, etc.).
-
-        TODO (future): Use fitz.open(file_path).metadata plus doc.page_count.
-        """
-        logger.info(f"[stub] extract_metadata called for: {file_path}")
-        raise NotImplementedError("PDF metadata extraction is not implemented yet.")
-
 
 pdf_service = PDFService()

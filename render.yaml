@@ -1,4 +1,4 @@
-# Render Blueprint: the backend only (the frontend goes on Vercel, see docs/DEPLOYMENT.md).
+# Render Blueprint: the backend only (the frontend goes on Vercel).
 services:
   - type: web
     name: researchiq-api

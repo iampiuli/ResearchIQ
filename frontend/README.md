@@ -32,8 +32,4 @@ src/
   index.css     Design tokens, fonts, base styles, utilities
 ```
 
-## Learn more
-
-- [Frontend guide](../docs/FRONTEND.md): structure, state, `localStorage` keys, conventions
-- [Design system](../docs/DESIGN_SYSTEM.md): colors, typography, components. **Use tokens, never raw colors.**
-- [Getting started](../docs/GETTING_STARTED.md) · [Project README](../README.md)
+Use the design tokens in `src/index.css`, never raw colors. See the [project README](../README.md) for full setup.

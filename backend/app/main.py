@@ -27,7 +27,6 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"{settings.APP_NAME} starting up in '{settings.APP_ENV}' mode")
-    # TODO (future): Initialize ChromaDB client / warm up embedding model here.
     yield
     logger.info(f"{settings.APP_NAME} shutting down")
 
